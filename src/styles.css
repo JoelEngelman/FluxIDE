@@ -10,3 +10,5 @@
 .file-icon-text{background-image:url('https://cdn.jsdelivr.net/gh/devicons/devicon/icons/markdown/markdown-original.svg');color:transparent}
 .file-icon-code{background-image:url('https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg');color:transparent}
 .file-icon-default{background-image:url('https://cdn.jsdelivr.net/gh/devicons/devicon/icons/file/file-original.svg');color:transparent}
+.file-icon-flux img { width: 16px; height: 16px; display: block; object-fit: contain; }
+.brand img { width: 24px; height: 24px; display: block; object-fit: contain; }
