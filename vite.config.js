@@ -28,7 +28,7 @@ function runtimeTransform() {
   function format() {`;
 
       const transformed = withRuntimeImport.replace(
-        /  function run\\(\\) \\{[\\s\\S]*?\\n  \\}\\n\\n  function format\\(\\) \\{/,
+        /  function run\(\) \{[\s\S]*?\n  \}\n\n  function format\(\) \{/,
         replacement
       );
 
