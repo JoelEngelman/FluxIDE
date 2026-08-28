@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Flux fox logo">
+  <defs>
+    <linearGradient id="g" x1="32" y1="20" x2="224" y2="236" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ff8a3d"/>
+      <stop offset="1" stop-color="#f0447a"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#g)" d="M35 47 94 69c20-10 48-10 68 0l59-22-8 72c13 18 18 41 11 64-11 37-47 60-96 60s-85-23-96-60c-7-23-2-46 11-64L35 47Z"/>
+  <path fill="#fff" d="M61 104c17-20 43-29 67-22l-30 28-37 13v-19Zm134 0c-17-20-43-29-67-22l30 28 37 13v-19Z" opacity=".95"/>
+  <path fill="#272822" d="M73 119c15-7 29-5 41 6-11 15-25 22-41 20-9-6-10-17 0-26Zm110 0c-15-7-29-5-41 6 11 15 25 22 41 20 9-6 10-17 0-26Z"/>
+  <path fill="#fff" d="M91 125c5-4 12-4 17 1-4 7-10 10-17 9-4-3-4-7 0-10Zm74 0c-5-4-12-4-17 1 4 7 10 10 17 9 4-3 4-7 0-10Z"/>
+  <path fill="#272822" d="M118 151h20l-10 12-10-12Z"/>
+  <path fill="none" stroke="#272822" stroke-linecap="round" stroke-width="7" d="M128 163c-4 16-17 25-32 26m32-26c4 16 17 25 32 26"/>
+</svg>
