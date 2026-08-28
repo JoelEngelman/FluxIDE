@@ -1,202 +1,29 @@
-name: Integrate Flux UI Runtime
+name: Flux UI Runtime
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  integrate:
-    if: github.actor != 'github-actions[bot]'
+  validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          fetch-depth: 1
+          node-version: 24
+          cache: npm
 
-      - name: Integrate Flux Playground UI runtime
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
+      - name: Install dependencies
+        run: npm ci
 
-          main = Path('src/main.jsx')
-          text = main.read_text()
-
-          if "from './runtime'" not in text:
-              text = text.replace("import './styles.css';", "import './styles.css';\nimport { executeCode } from './runtime';")
-
-          if "const [fluxPreview, setFluxPreview]" not in text:
-              text = text.replace(
-                  "const [renameValue, setRenameValue] = useState('');",
-                  "const [renameValue, setRenameValue] = useState('');\n  const [fluxPreview, setFluxPreview] = useState(null);"
-              )
-
-          start = text.find("  function run() {")
-          end = text.find("\n  function format()", start)
-          if start == -1 or end == -1:
-              raise SystemExit('Could not locate run function')
-
-          new_run = '''  async function run() {
-            setPanel('output');
-            setFluxPreview(null);
-            try {
-              const result = await executeCode(language, draft, active);
-              if (language === 'flux' && result && typeof result === 'object') {
-                setOutput(result.output || 'Flux program finished.');
-                setFluxPreview(result.preview || null);
-              } else {
-                setOutput(String(result ?? 'Process finished with no output.'));
-              }
-            } catch (error) {
-              setOutput(error?.message || String(error));
-            }
-          }
-'''
-          text = text[:start] + new_run + text[end:]
-
-          old = """              ) : (\n                <pre>{panel === 'output' ? output : panel === 'problems' ? '✓ No problems reported.' : panel === 'source' ? 'Browser source control workspace ready. Native Git requires Electron or a backend.' : history.length ? history.map((item) => `${item.time}  ${item.file}`).join('\\n') : 'No local history yet.'}</pre>\n              )}"""
-          new = """              ) : (\n                <>\n                  <pre>{panel === 'output' ? output : panel === 'problems' ? '✓ No problems reported.' : panel === 'source' ? 'Browser source control workspace ready. Native Git requires Electron or a backend.' : history.length ? history.map((item) => `${item.time}  ${item.file}`).join('\\n') : 'No local history yet.'}</pre>\n                  {panel === 'output' && fluxPreview && (\n                    <div className=\"flux-preview\">\n                      <div className=\"flux-preview-head\"><span>FLUX UI PREVIEW</span><button onClick={() => setFluxPreview(null)}>Close</button></div>\n                      <iframe title=\"Flux UI Preview\" srcDoc={fluxPreview} sandbox=\"allow-scripts\" />\n                    </div>\n                  )}\n                </>\n              )}"""
-          if old not in text:
-              raise SystemExit('Could not locate output panel')
-          text = text.replace(old, new, 1)
-
-          main.write_text(text)
-
-          runtime = Path('src/runtime.js')
-          rt = runtime.read_text()
-          start = rt.find('function executeFlux(source) {')
-          end = rt.find('\nfunction evaluateFluxExpression', start)
-          if start == -1 or end == -1:
-              raise SystemExit('Could not locate executeFlux')
-
-          new_flux = r'''function executeFlux(source) {
-  const lines = source.replace(/\r/g, '').split('\n');
-  const groups = [];
-  const ui = [];
-  let currentGroup = null;
-  let currentCard = null;
-
-  const clean = (value) => value.trim().replace(/^['"]|['"]$/g, '');
-
-  for (const raw of lines) {
-    const line = raw.trim();
-    if (!line || line.startsWith('//') || line.startsWith('#')) continue;
-
-    let match = line.match(/^ui\s+window\s+["'](.+?)["']$/i);
-    if (match) { ui.push({ type: 'window', text: match[1] }); continue; }
-
-    match = line.match(/^ui\s+background\s+["'](.+?)["']$/i);
-    if (match) { ui.push({ type: 'background', value: match[1] }); continue; }
-
-    match = line.match(/^ui\s+card$/i);
-    if (match) { currentCard = { type: 'card', children: [] }; ui.push(currentCard); continue; }
-
-    match = line.match(/^ui\s+text\s+["'](.+?)["'](?:\s+size\s+(\d+))?(?:\s+colour\s+["'](.+?)["'])?$/i);
-    if (match) {
-      const item = { type: 'text', text: match[1], size: match[2] || null, colour: match[3] || null };
-      (currentCard ? currentCard.children : ui).push(item);
-      continue;
-    }
-
-    match = line.match(/^ui\s+button\s+["'](.+?)["']$/i);
-    if (match) {
-      const item = { type: 'button', text: match[1], colour: null };
-      (currentCard ? currentCard.children : ui).push(item);
-      continue;
-    }
-
-    match = line.match(/^colour\s+["'](.+?)["']$/i);
-    if (match) {
-      const target = currentCard?.children?.[currentCard.children.length - 1];
-      if (target?.type === 'button' || target?.type === 'text') target.colour = match[1];
-      continue;
-    }
-
-    if (/^done$/i.test(line)) {
-      if (currentCard) currentCard = null;
-      else if (currentGroup) currentGroup = null;
-      continue;
-    }
-
-    match = line.match(/^group\s+["'](.+?)["']$/i);
-    if (match) {
-      currentGroup = { name: match[1], words: [] };
-      groups.push(currentGroup);
-      continue;
-    }
-
-    if (currentGroup && /^[A-Za-z][A-Za-z0-9_-]*$/.test(line)) {
-      currentGroup.words.push(line);
-      continue;
-    }
-
-    const print = line.match(/^print\s*\((.*)\)$/i) || line.match(/^say\s*\((.*)\)$/i);
-    if (print) {
-      ui.push({ type: 'console', text: String(evaluateFluxExpression(print[1], new Map())) });
-      continue;
-    }
-  }
-
-  const escapeHtml = (value) => String(value)
-    .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;').replaceAll("'", '&#39;');
-
-  const renderNode = (item) => {
-    if (item.type === 'text') {
-      return `<div class="ui-text" style="${item.size ? `font-size:${escapeHtml(item.size)}px;` : ''}${item.colour ? `color:${escapeHtml(item.colour)};` : ''}">${escapeHtml(item.text)}</div>`;
-    }
-    if (item.type === 'button') {
-      const background = item.colour || '#8b5cf6';
-      return `<button class="ui-button" style="background:${escapeHtml(background)}" onclick="document.getElementById('console').textContent += '\\n${escapeHtml(item.text)} clicked'">${escapeHtml(item.text)}</button>`;
-    }
-    if (item.type === 'card') {
-      return `<section class="ui-card">${item.children.map(renderNode).join('')}</section>`;
-    }
-    if (item.type === 'window') return `<h1 class="ui-title">${escapeHtml(item.text)}</h1>`;
-    return '';
-  };
-
-  const body = ui.filter((item) => item.type !== 'background' && item.type !== 'console').map(renderNode).join('');
-  const background = ui.find((item) => item.type === 'background')?.value || '#0a0d14';
-  const consoleOutput = ui.filter((item) => item.type === 'console').map((item) => item.text).join('\n');
-  const gameSummary = groups.length
-    ? `<section class="game"><h2>🧩 Flux ${escapeHtml('Connections')}</h2><p>Groups loaded: ${groups.length}</p>${groups.map((g) => `<div class="group"><strong>${escapeHtml(g.name)}</strong><span>${g.words.map(escapeHtml).join(' · ')}</span></div>`).join('')}</section>`
-    : '';
-
-  const preview = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;padding:28px;background:${background};color:#f5f7ff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.ui-title{font-size:32px;font-weight:900;margin:0 0 18px}.ui-text{color:#c7ccda;line-height:1.6;margin:8px 0}.ui-card{padding:22px;border-radius:18px;background:#171b27;border:1px solid #ffffff18;box-shadow:0 20px 60px #0006;margin:18px 0}.ui-button{border:0;border-radius:12px;padding:11px 16px;margin-top:15px;color:white;font-weight:800;cursor:pointer}.game{margin-top:22px;padding:20px;border-radius:18px;background:#111622;border:1px solid #ffffff14}.game h2{margin-top:0}.group{padding:12px 15px;border-radius:12px;margin:8px 0;background:#8b5cf6}.group strong{display:block}.console{margin-top:18px;color:#9da4b5;font:13px/1.6 monospace;white-space:pre-wrap}</style></head><body>${body}${gameSummary}<pre id="console" class="console">${escapeHtml(consoleOutput)}</pre></body></html>`;
-
-  const output = [
-    ...ui.filter((item) => item.type === 'window').map((item) => `UI window: ${item.text}`),
-    ...ui.filter((item) => item.type === 'background').map((item) => `UI background: ${item.value}`),
-    ...groups.map((group) => `${group.name}: ${group.words.join(', ')}`)
-  ].join('\n') || 'Flux program rendered visually.';
-
-  return { output, preview };
-}
-'''
-          rt = rt[:start] + new_flux + rt[end:]
-          runtime.write_text(rt)
-          PY
-
-      - name: Commit integrated runtime
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/main.jsx src/runtime.js
-          if git diff --cached --quiet; then
-            echo "No changes needed"
-            exit 0
-          fi
-          git commit -m "Add working Flux UI preview runtime"
-          git push
-
-      - name: Remove integration workflow
-        if: success()
-        run: |
-          git rm .github/workflows/flux-ui-runtime.yml
-          git commit -m "Remove one-time Flux UI integration workflow"
-          git push
+      - name: Build FluxIDE
+        run: npm run build
