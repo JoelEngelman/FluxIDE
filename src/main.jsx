@@ -6,7 +6,7 @@ import {
   Trash2, Terminal, CheckCircle2, Download, Upload, Copy, Command,
   Settings, FilePlus, FolderPlus, History, PanelLeft, Sun, Moon,
   ChevronRight, ChevronDown, Braces, Eye, SplitSquareHorizontal, X,
-  Pencil, Globe, FileSearch, FolderOpen, Zap
+  Pencil, Globe, Zap
 } from 'lucide-react';
 import './styles.css';
 
@@ -16,10 +16,9 @@ const LANGUAGES = [
   ['java', 'Java'], ['c', 'C'], ['cpp', 'C++'], ['csharp', 'C#'], ['go', 'Go'],
   ['rust', 'Rust'], ['php', 'PHP'], ['ruby', 'Ruby'], ['swift', 'Swift'],
   ['kotlin', 'Kotlin'], ['dart', 'Dart'], ['sql', 'SQL'], ['shell', 'Shell'],
-  ['markdown', 'Markdown'], ['yaml', 'YAML'], ['xml', 'XML'],
-  ['dockerfile', 'Dockerfile'], ['graphql', 'GraphQL'], ['lua', 'Lua'],
-  ['perl', 'Perl'], ['r', 'R'], ['powershell', 'PowerShell'],
-  ['plaintext', 'Plain Text']
+  ['markdown', 'Markdown'], ['yaml', 'YAML'], ['xml', 'XML'], ['dockerfile', 'Dockerfile'],
+  ['graphql', 'GraphQL'], ['lua', 'Lua'], ['perl', 'Perl'], ['r', 'R'],
+  ['powershell', 'PowerShell'], ['plaintext', 'Plain Text']
 ];
 
 const EXTENSIONS = {
@@ -59,16 +58,17 @@ const DEFAULT_FILES = {
 };
 
 function detectLanguage(name) {
-  const extension = name.toLowerCase().split('.').pop();
-  return ({
+  const lower = name.toLowerCase();
+  const extension = lower === 'dockerfile' ? 'dockerfile' : lower.split('.').pop();
+  return {
     flux: 'flux', js: 'javascript', jsx: 'javascript', ts: 'typescript', tsx: 'typescript',
-    html: 'html', htm: 'html', css: 'css', json: 'json', py: 'python', java: 'java',
-    c: 'c', h: 'c', cpp: 'cpp', cc: 'cpp', cxx: 'cpp', cs: 'csharp', go: 'go', rs: 'rust',
-    php: 'php', rb: 'ruby', swift: 'swift', kt: 'kotlin', dart: 'dart', sql: 'sql',
-    sh: 'shell', bash: 'shell', md: 'markdown', yaml: 'yaml', yml: 'yaml', xml: 'xml',
-    lua: 'lua', pl: 'perl', r: 'r', ps1: 'powershell', graphql: 'graphql',
-    dockerfile: 'dockerfile', txt: 'plaintext'
-  })[extension] || 'plaintext';
+    html: 'html', htm: 'html', css: 'css', scss: 'css', sass: 'css', json: 'json',
+    py: 'python', java: 'java', c: 'c', h: 'c', cpp: 'cpp', cc: 'cpp', cxx: 'cpp',
+    cs: 'csharp', go: 'go', rs: 'rust', php: 'php', rb: 'ruby', swift: 'swift',
+    kt: 'kotlin', dart: 'dart', sql: 'sql', sh: 'shell', bash: 'shell', md: 'markdown',
+    yaml: 'yaml', yml: 'yaml', xml: 'xml', lua: 'lua', pl: 'perl', r: 'r', ps1: 'powershell',
+    graphql: 'graphql', dockerfile: 'dockerfile', txt: 'plaintext'
+  }[extension] || 'plaintext';
 }
 
 function FileIcon({ name }) {
@@ -84,9 +84,7 @@ function FileIcon({ name }) {
   }
 
   const icon = FILE_ICONS[extension];
-  if (!icon) {
-    return <span className="file-icon file-icon-default"><FileCode2 /></span>;
-  }
+  if (!icon) return <span className="file-icon file-icon-default"><FileCode2 /></span>;
 
   return (
     <span className={`file-icon file-icon-${extension}`}>
@@ -95,17 +93,174 @@ function FileIcon({ name }) {
   );
 }
 
+function registerFluxLanguage(monaco) {
+  if (monaco.languages.getLanguages().some((language) => language.id === 'flux')) return;
+
+  monaco.languages.register({
+    id: 'flux',
+    extensions: ['.flux'],
+    aliases: ['Flux', 'flux'],
+    mimetypes: ['text/x-flux', 'text/flux']
+  });
+
+  monaco.languages.setLanguageConfiguration('flux', {
+    comments: { lineComment: '//', blockComment: ['/*', '*/'] },
+    brackets: [['{', '}'], ['[', ']'], ['(', ')']],
+    autoClosingPairs: [
+      { open: '{', close: '}' }, { open: '[', close: ']' }, { open: '(', close: ')' },
+      { open: '"', close: '"' }, { open: "'", close: "'" }, { open: '`', close: '`' }
+    ],
+    surroundingPairs: [
+      ['{', '}'], ['[', ']'], ['(', ')'], ['"', '"'], ["'", "'"], ['`', '`']
+    ],
+    folding: { markers: { start: /^\s*\/\/\s*#?region\b/, end: /^\s*\/\/\s*#?endregion\b/ } }
+  });
+
+  const keywords = [
+    'if', 'else', 'when', 'otherwise', 'unless', 'while', 'until', 'repeat', 'loop',
+    'for', 'in', 'of', 'match', 'case', 'default', 'break', 'continue', 'return', 'yield',
+    'try', 'catch', 'finally', 'throw', 'raise', 'assert', 'let', 'make', 'const', 'fixed',
+    'var', 'create', 'define', 'declare', 'set', 'use', 'import', 'export', 'from', 'as',
+    'module', 'package', 'project', 'and', 'or', 'not', 'is', "isn't", 'equals', 'contains',
+    'starts', 'ends', 'notin', 'public', 'private', 'protected', 'internal', 'static', 'final',
+    'async', 'await', 'native', 'extern', 'inline', 'unsafe', 'sealed', 'abstract', 'override',
+    'where', 'with', 'into', 'using', 'by', 'via', 'on', 'at', 'inside', 'outside', 'before', 'after'
+  ];
+
+  const types = [
+    'text', 'string', 'number', 'integer', 'decimal', 'boolean', 'bool', 'list', 'array',
+    'map', 'object', 'set', 'tuple', 'function', 'fn', 'void', 'any', 'unknown', 'never',
+    'byte', 'bytes', 'date', 'time', 'datetime', 'url', 'path', 'file', 'error'
+  ];
+
+  const builtins = [
+    'print', 'say', 'write', 'read', 'input', 'ask', 'log', 'debug', 'warn', 'error', 'panic',
+    'exit', 'abs', 'ceil', 'floor', 'round', 'sqrt', 'pow', 'sin', 'cos', 'tan', 'asin', 'acos',
+    'atan', 'atan2', 'log', 'ln', 'exp', 'min', 'max', 'clamp', 'random', 'randomInt',
+    'randomFloat', 'pi', 'e', 'len', 'length', 'count', 'first', 'last', 'push', 'pop', 'shift',
+    'unshift', 'insert', 'remove', 'contains', 'find', 'filter', 'map', 'reduce', 'sort', 'reverse',
+    'join', 'split', 'slice', 'range', 'zip', 'enumerate', 'str', 'text', 'num', 'number', 'int',
+    'integer', 'float', 'bool', 'boolean', 'set', 'tuple', 'json', 'parse', 'stringify', 'now',
+    'today', 'sleep', 'time', 'clock', 'env', 'platform', 'os', 'args', 'exec', 'command', 'open',
+    'close', 'readFile', 'writeFile', 'appendFile', 'exists', 'deleteFile', 'copyFile', 'moveFile',
+    'listFiles', 'mkdir', 'rmdir', 'fetch', 'request', 'get', 'post', 'put', 'patch', 'delete',
+    'download', 'upload', 'connect', 'listen', 'send', 'receive', 'html', 'css', 'dom', 'element',
+    'render', 'route', 'serve', 'redirect', 'response'
+  ];
+
+  monaco.languages.setMonarchTokensProvider('flux', {
+    defaultToken: 'identifier',
+    keywords,
+    types,
+    builtins,
+    tokenizer: {
+      root: [
+        [/\/\*/, 'comment', '@comment'],
+        [/\/\/.*$/, 'comment'],
+        [/(?<![A-Za-z0-9_])#.*$/, 'comment'],
+        [/#!.*$/, 'comment'],
+        [/@[A-Za-z_][A-Za-z0-9_]*/, 'annotation'],
+        [/\$\{/, { token: 'delimiter.bracket', next: '@interpolation' }],
+        [/"""/, { token: 'string', next: '@tripleString' }],
+        [/"/, { token: 'string', next: '@doubleString' }],
+        [/'/, { token: 'string', next: '@singleString' }],
+        [/`/, { token: 'string', next: '@templateString' }],
+        [/\b0[xX][0-9A-Fa-f](?:_?[0-9A-Fa-f])*\b/, 'number.hex'],
+        [/\b0[bB][01](?:_?[01])*\b/, 'number.binary'],
+        [/\b0[oO][0-7](?:_?[0-7])*\b/, 'number.octal'],
+        [/\b\d(?:_?\d)*\.\d(?:_?\d)*(?:[eE][+-]?\d+)?\b/, 'number.float'],
+        [/\b\d(?:_?\d)*[eE][+-]?\d+\b/, 'number.float'],
+        [/\b\d(?:_?\d)*\b/, 'number'],
+        [/[A-Za-z_][A-Za-z0-9_]*/, {
+          cases: {
+            '@keywords': 'keyword',
+            '@types': 'type',
+            '@builtins': 'predefined',
+            'true|false': 'constant',
+            'null|none|nil': 'constant',
+            '@default': 'identifier'
+          }
+        }],
+        [/[+\-*\/%=<>!&|^~?:]+/, 'operator'],
+        [/[{}()[\],.;]/, 'delimiter'],
+        [/\$[A-Za-z_][A-Za-z0-9_]*/, 'variable']
+      ],
+      comment: [
+        [/[^/*]+/, 'comment'],
+        [/\/\*/, 'comment', '@push'],
+        [/\*\//, 'comment', '@pop'],
+        [/[/*]/, 'comment']
+      ],
+      doubleString: [
+        [/\\(?:n|r|t|b|f|v|0|\\|"|'|`)/, 'string.escape'],
+        [/\\u\{[0-9A-Fa-f]+\}/, 'string.escape'],
+        [/\\x[0-9A-Fa-f]{2}/, 'string.escape'],
+        [/\$\{/, { token: 'delimiter.bracket', next: '@interpolation' }],
+        [/[^"\\$]+/, 'string'],
+        [/"/, { token: 'string', next: '@pop' }]
+      ],
+      singleString: [
+        [/\\(?:n|r|t|b|f|v|0|\\|"|'|`)/, 'string.escape'],
+        [/\\u\{[0-9A-Fa-f]+\}/, 'string.escape'],
+        [/\\x[0-9A-Fa-f]{2}/, 'string.escape'],
+        [/[^'\\]+/, 'string'],
+        [/'/, { token: 'string', next: '@pop' }]
+      ],
+      tripleString: [
+        [/\\(?:n|r|t|b|f|v|0|\\|"|'|`)/, 'string.escape'],
+        [/\$\{/, { token: 'delimiter.bracket', next: '@interpolation' }],
+        [/[^"\\$]+/, 'string'],
+        [/"""/, { token: 'string', next: '@pop' }]
+      ],
+      templateString: [
+        [/\\(?:n|r|t|b|f|v|0|\\|"|'|`)/, 'string.escape'],
+        [/\$\{/, { token: 'delimiter.bracket', next: '@interpolation' }],
+        [/[^`\\$]+/, 'string'],
+        [/`/, { token: 'string', next: '@pop' }]
+      ],
+      interpolation: [
+        [/\}/, { token: 'delimiter.bracket', next: '@pop' }],
+        [/\b\d+(?:\.\d+)?\b/, 'number'],
+        [/[A-Za-z_][A-Za-z0-9_]*/, {
+          cases: { '@keywords': 'keyword', '@types': 'type', '@builtins': 'predefined', '@default': 'identifier' }
+        }],
+        [/[+\-*\/%=<>!&|^~?:]+/, 'operator'],
+        [/\s+/, 'white']
+      ]
+    }
+  });
+
+  monaco.languages.registerCompletionItemProvider('flux', {
+    triggerCharacters: ['.', ':', '@'],
+    provideCompletionItems(model, position) {
+      const range = {
+        startLineNumber: position.lineNumber,
+        endLineNumber: position.lineNumber,
+        startColumn: position.column,
+        endColumn: position.column
+      };
+      const suggestions = [...keywords, ...types, ...builtins]
+        .filter((word, index, list) => list.indexOf(word) === index)
+        .map((word) => ({
+          label: word,
+          kind: monaco.languages.CompletionItemKind.Keyword,
+          insertText: word,
+          range
+        }));
+      return { suggestions };
+    }
+  });
+}
+
 function App() {
-  const [files, setFiles] = useState(() =>
-    JSON.parse(localStorage.getItem('fluxide-files') || 'null') || DEFAULT_FILES
-  );
+  const [files, setFiles] = useState(() => JSON.parse(localStorage.getItem('fluxide-files') || 'null') || DEFAULT_FILES);
   const [active, setActive] = useState('main.js');
   const [draft, setDraft] = useState(files['main.js'] ?? '');
   const [language, setLanguage] = useState('javascript');
   const [pendingLanguage, setPendingLanguage] = useState(null);
   const [query, setQuery] = useState('');
   const [output, setOutput] = useState('Ready. Welcome to FluxIDE.');
-  const [version] = useState('0.5.0');
+  const [version] = useState('0.5.1');
   const [latest, setLatest] = useState(null);
   const [theme, setTheme] = useState(localStorage.getItem('fluxide-theme') || 'monokai');
   const [palette, setPalette] = useState(false);
@@ -127,53 +282,28 @@ function App() {
   useEffect(() => {
     setDraft(files[active] ?? '');
     setLanguage(detectLanguage(active));
-    if (!tabs.includes(active)) setTabs((currentTabs) => [...currentTabs, active]);
+    if (!tabs.includes(active)) setTabs((current) => [...current, active]);
   }, [active]);
 
   useEffect(() => {
     const keyHandler = (event) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
-        event.preventDefault();
-        save();
-      }
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault();
-        setPalette((value) => !value);
-      }
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'p') {
-        event.preventDefault();
-        document.querySelector('.search input')?.focus();
-      }
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'r') {
-        event.preventDefault();
-        openRename();
-      }
-      if (event.key === 'Escape') {
-        setPalette(false);
-        setSettings(false);
-        setPendingLanguage(null);
-        setRenameOpen(false);
-      }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); save(); }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); setPalette((v) => !v); }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'p') { event.preventDefault(); document.querySelector('.search input')?.focus(); }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'r') { event.preventDefault(); openRename(); }
+      if (event.key === 'Escape') { setPalette(false); setSettings(false); setPendingLanguage(null); setRenameOpen(false); }
     };
-
     addEventListener('keydown', keyHandler);
     return () => removeEventListener('keydown', keyHandler);
   }, [draft, active, files, language]);
 
-  const visible = useMemo(
-    () => Object.keys(files).filter((file) => file.toLowerCase().includes(query.toLowerCase())),
-    [files, query]
-  );
+  const visible = useMemo(() => Object.keys(files).filter((file) => file.toLowerCase().includes(query.toLowerCase())), [files, query]);
   const lines = draft.split('\n');
-  const monokai = theme === 'monokai';
-  const editorTheme = monokai ? 'fluxide-monokai' : theme === 'dark' ? 'vs-dark' : 'light';
+  const editorTheme = theme === 'monokai' ? 'fluxide-monokai' : theme === 'dark' ? 'vs-dark' : 'light';
   const togglePanel = (id) => setPanel((current) => current === id ? null : id);
 
   function save() {
-    setHistory((current) => [
-      ...current,
-      { file: active, time: new Date().toLocaleTimeString(), content: files[active] }
-    ].slice(-30));
+    setHistory((current) => [...current, { file: active, time: new Date().toLocaleTimeString() }].slice(-30));
     setFiles((current) => ({ ...current, [active]: draft }));
     setOutput(`✓ Saved ${active}`);
   }
@@ -196,51 +326,41 @@ function App() {
 
   function remove() {
     if (!confirm(`Delete ${active}?`)) return;
-    const nextFiles = { ...files };
-    delete nextFiles[active];
-    const firstFile = Object.keys(nextFiles)[0] || 'main.js';
-    if (!Object.keys(nextFiles).length) nextFiles[firstFile] = '';
-    setFiles(nextFiles);
-    setTabs((currentTabs) => currentTabs.filter((tab) => tab !== active));
-    setActive(firstFile);
+    const next = { ...files };
+    delete next[active];
+    const first = Object.keys(next)[0] || 'main.js';
+    if (!Object.keys(next).length) next[first] = '';
+    setFiles(next);
+    setTabs((current) => current.filter((tab) => tab !== active));
+    setActive(first);
     setOutput(`Deleted ${active}`);
   }
 
-  function openRename() {
-    setRenameValue(active);
-    setRenameOpen(true);
-  }
+  function openRename() { setRenameValue(active); setRenameOpen(true); }
 
   function renameFile() {
     const nextName = renameValue.trim();
-    if (!nextName || nextName === active) {
-      setRenameOpen(false);
-      return;
-    }
-    if (files[nextName]) {
-      setOutput(`Cannot rename: ${nextName} already exists.`);
-      return;
-    }
-
-    const nextFiles = { ...files, [nextName]: draft };
-    delete nextFiles[active];
-    setFiles(nextFiles);
-    setTabs((currentTabs) => currentTabs.map((tab) => tab === active ? nextName : tab));
+    if (!nextName || nextName === active) { setRenameOpen(false); return; }
+    if (Object.prototype.hasOwnProperty.call(files, nextName)) { setOutput(`Cannot rename: ${nextName} already exists.`); return; }
+    const next = { ...files, [nextName]: draft };
+    delete next[active];
+    setFiles(next);
+    setTabs((current) => current.map((tab) => tab === active ? nextName : tab));
     setActive(nextName);
     setRenameOpen(false);
     setOutput(`✓ Renamed ${active} → ${nextName}`);
   }
 
   function closeTab(file) {
-    const remainingTabs = tabs.filter((tab) => tab !== file);
-    setTabs(remainingTabs);
-    if (active === file && remainingTabs.length) setActive(remainingTabs[remainingTabs.length - 1]);
+    const remaining = tabs.filter((tab) => tab !== file);
+    setTabs(remaining);
+    if (active === file && remaining.length) setActive(remaining[remaining.length - 1]);
   }
 
   function duplicate() {
     let name = active.replace(/(\.[^.]*)?$/, '-copy$1');
     let index = 2;
-    while (files[name]) name = active.replace(/(\.[^.]*)?$/, `-copy${index++}$1`);
+    while (Object.prototype.hasOwnProperty.call(files, name)) name = active.replace(/(\.[^.]*)?$/, `-copy${index++}$1`);
     setFiles((current) => ({ ...current, [name]: draft }));
     setActive(name);
   }
@@ -248,31 +368,24 @@ function App() {
   function requestLanguageChange(nextLanguage) {
     if (nextLanguage === language) return;
     const nextExtension = EXTENSIONS[nextLanguage];
-    const oldExtension = active.includes('.') ? active.split('.').pop().toLowerCase() : '';
     const proposedName = active.includes('.')
       ? `${active.slice(0, active.lastIndexOf('.'))}.${nextExtension}`
       : `${active}.${nextExtension}`;
-
-    setPendingLanguage({ nextLanguage, nextExtension, oldExtension, proposedName });
+    setPendingLanguage({ nextLanguage, proposedName });
   }
 
   function confirmLanguageChange() {
     if (!pendingLanguage) return;
     const { nextLanguage, proposedName } = pendingLanguage;
-
-    if (files[proposedName] && proposedName !== active) {
+    if (Object.prototype.hasOwnProperty.call(files, proposedName) && proposedName !== active) {
       setOutput(`Cannot change file type: ${proposedName} already exists.`);
       setPendingLanguage(null);
       return;
     }
-
-    const nextFiles = { ...files };
-    const content = draft;
-    delete nextFiles[active];
-    nextFiles[proposedName] = content;
-
-    setFiles(nextFiles);
-    setTabs((currentTabs) => currentTabs.map((tab) => tab === active ? proposedName : tab));
+    const next = { ...files, [proposedName]: draft };
+    delete next[active];
+    setFiles(next);
+    setTabs((current) => current.map((tab) => tab === active ? proposedName : tab));
     setActive(proposedName);
     setLanguage(nextLanguage);
     setPendingLanguage(null);
@@ -281,31 +394,36 @@ function App() {
 
   function run() {
     setPanel('output');
-    if (language !== 'javascript') {
-      setOutput(`${language} editing is supported. Native execution arrives with Electron.`);
+    if (language === 'javascript') {
+      const oldLog = console.log;
+      const logs = [];
+      try {
+        console.log = (...values) => logs.push(values.map(String).join(' '));
+        new Function(draft)();
+        setOutput(logs.join('\n') || 'Process finished with no console output.');
+      } catch (error) {
+        setOutput(`Runtime error: ${error.message}`);
+      } finally {
+        console.log = oldLog;
+      }
       return;
     }
-    const oldLog = console.log;
-    const logs = [];
-    try {
-      console.log = (...values) => logs.push(values.map(String).join(' '));
-      new Function(draft)();
-      setOutput(logs.join('\n') || 'Process finished with no console output.');
-    } catch (error) {
-      setOutput(`Runtime error: ${error.message}`);
-    } finally {
-      console.log = oldLog;
+    if (language === 'flux') {
+      const printMatches = [...draft.matchAll(/\b(?:print|say)\s*\(\s*["']([\s\S]*?)["']\s*\)/g)];
+      if (printMatches.length) {
+        setOutput(printMatches.map((match) => match[1]).join('\n'));
+      } else {
+        setOutput('Flux source loaded. Browser execution currently supports print()/say() string output; full Flux runtime requires the Flux runtime/compiler.');
+      }
+      return;
     }
+    setOutput(`${LANGUAGES.find(([id]) => id === language)?.[1] || language} editing is supported. Browser execution is not available for this language yet.`);
   }
 
   function format() {
     if (language === 'json') {
-      try {
-        setDraft(JSON.stringify(JSON.parse(draft), null, 2));
-        setOutput('✓ Formatted JSON');
-      } catch (error) {
-        setOutput(`Format error: ${error.message}`);
-      }
+      try { setDraft(JSON.stringify(JSON.parse(draft), null, 2)); setOutput('✓ Formatted JSON'); }
+      catch (error) { setOutput(`Format error: ${error.message}`); }
       return;
     }
     setDraft(draft.split('\n').map((line) => line.trimEnd()).join('\n'));
@@ -326,19 +444,13 @@ function App() {
     input.multiple = true;
     input.onchange = () => Array.from(input.files || []).forEach((file) => {
       const reader = new FileReader();
-      reader.onload = () => {
-        setFiles((current) => ({ ...current, [file.name]: String(reader.result) }));
-        setActive(file.name);
-      };
+      reader.onload = () => { setFiles((current) => ({ ...current, [file.name]: String(reader.result) })); setActive(file.name); };
       reader.readAsText(file);
     });
     input.click();
   }
 
-  function copy() {
-    navigator.clipboard?.writeText(draft);
-    setOutput('Copied contents to clipboard.');
-  }
+  function copy() { navigator.clipboard?.writeText(draft); setOutput('Copied contents to clipboard.'); }
 
   function openLiveServer() {
     if (detectLanguage(active) !== 'html' && language !== 'html') {
@@ -346,27 +458,17 @@ function App() {
       setPanel('output');
       return;
     }
-
     let html = draft;
-    const cssFiles = Object.entries(files).filter(([name]) => detectLanguage(name) === 'css');
-    const jsFiles = Object.entries(files).filter(([name]) => detectLanguage(name) === 'javascript');
-
-    cssFiles.forEach(([name, content]) => {
+    Object.entries(files).filter(([name]) => detectLanguage(name) === 'css').forEach(([name, content]) => {
       const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      html = html.replace(new RegExp(`<link[^>]+href=["']${escaped}["'][^>]*>`, 'gi'), `<style>\n${content}\n</style>`);
+      html = html.replace(new RegExp(`<link[^>]+href=["']${escaped}["'][^>]*>`, 'gi'), `<style>${content}</style>`);
     });
-
-    jsFiles.forEach(([name, content]) => {
+    Object.entries(files).filter(([name]) => detectLanguage(name) === 'javascript').forEach(([name, content]) => {
       const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      html = html.replace(new RegExp(`<script[^>]+src=["']${escaped}["'][^>]*><\\/script>`, 'gi'), `<script>\n${content}\n<\/script>`);
+      html = html.replace(new RegExp(`<script[^>]+src=["']${escaped}["'][^>]*><\\/script>`, 'gi'), `<script>${content}<\\/script>`);
     });
-
-    const preview = window.open('', '_blank', 'noopener,noreferrer');
-    if (!preview) {
-      setOutput('Live Server was blocked by the browser. Allow pop-ups for FluxIDE.');
-      return;
-    }
-
+    const preview = window.open('', '_blank');
+    if (!preview) { setOutput('Live Server was blocked by the browser. Allow pop-ups for FluxIDE.'); return; }
     preview.document.write(html);
     preview.document.close();
     setOutput(`✓ Live preview opened for ${active}`);
@@ -380,39 +482,22 @@ function App() {
       const data = await response.json();
       setLatest(data.version);
       setOutput(data.version !== version ? `⬆ Update available: ${data.version}` : `✓ You are up to date (${version}).`);
-    } catch (error) {
-      setOutput(`Update check unavailable. (${error.message})`);
-    }
+    } catch (error) { setOutput(`Update check unavailable. (${error.message})`); }
   }
 
-  function command(commandName) {
+  const command = (name) => {
     setPalette(false);
-    ({
-      new: newFile,
-      project: newProject,
-      save,
-      run,
-      format,
-      download,
-      upload,
-      updates,
-      rename: openRename,
-      live: openLiveServer,
-      settings: () => setSettings(true),
-      terminal: () => setPanel('terminal'),
-      problems: () => setPanel('problems'),
-      split: () => setSplit((value) => !value),
-      outline: () => setOutline((value) => !value)
-    })[commandName]?.();
-  }
+    ({ new: newFile, project: newProject, rename: openRename, save, run, live: openLiveServer,
+      format, download, upload, updates, settings: () => setSettings(true),
+      terminal: () => setPanel('terminal'), problems: () => setPanel('problems'),
+      split: () => setSplit((v) => !v), outline: () => setOutline((v) => !v) })[name]?.();
+  };
 
   return (
     <div className={`app ${theme}`}>
       <header>
-        <button className="icon" onClick={() => setSidebar((value) => !value)}><PanelLeft /></button>
-        <div className="brand">
-          <img src={`${import.meta.env.BASE_URL}android-chrome-512x512.png`} alt="Flux" /> FluxIDE <span>WEB</span>
-        </div>
+        <button className="icon" onClick={() => setSidebar((v) => !v)}><PanelLeft /></button>
+        <div className="brand"><img src={`${import.meta.env.BASE_URL}android-chrome-512x512.png`} alt="Flux" /> FluxIDE <span>WEB</span></div>
         <div className="actions">
           <button onClick={newProject}><FolderPlus /> New Project</button>
           <button onClick={save}><Save /> Save</button>
@@ -428,14 +513,8 @@ function App() {
       <div className="workspace">
         {sidebar && (
           <aside>
-            <div className="side-title">
-              <Folder /> EXPLORER
-              <button className="mini" onClick={newFile}><Plus /></button>
-            </div>
-            <div className="search">
-              <Search />
-              <input placeholder="Search files (Ctrl+P)" value={query} onChange={(event) => setQuery(event.target.value)} />
-            </div>
+            <div className="side-title"><Folder /> EXPLORER <button className="mini" onClick={newFile}><Plus /></button></div>
+            <div className="search"><Search /><input placeholder="Search files (Ctrl+P)" value={query} onChange={(e) => setQuery(e.target.value)} /></div>
             <div className="files">
               {visible.map((file) => (
                 <button className={file === active ? 'file active' : 'file'} key={file} onClick={() => setActive(file)}>
@@ -444,16 +523,8 @@ function App() {
               ))}
             </div>
             <div className="outline">
-              <div onClick={() => setOutline((value) => !value)}>
-                {outline ? <ChevronDown /> : <ChevronRight />}<Braces /> OUTLINE
-              </div>
-              {outline && (
-                <small>
-                  {lines.filter((line) => /function|class|const|let|var|fn|struct/.test(line)).slice(0, 10).map((line, index) => (
-                    <span key={index}>{line.trim().slice(0, 45)}</span>
-                  ))}
-                </small>
-              )}
+              <div onClick={() => setOutline((v) => !v)}>{outline ? <ChevronDown /> : <ChevronRight />}<Braces /> OUTLINE</div>
+              {outline && <small>{lines.filter((line) => /function|class|const|let|var|fn|struct|create|define|project|module/.test(line)).slice(0, 10).map((line, i) => <span key={i}>{line.trim().slice(0, 45)}</span>)}</small>}
             </div>
             <div className="side-bottom">
               <button onClick={newFile}><FilePlus /> New File</button>
@@ -475,21 +546,21 @@ function App() {
           <div className="tabs">
             {tabs.map((file) => (
               <div className={`tab ${file === active ? 'tab-active' : ''}`} key={file} onClick={() => setActive(file)}>
-                <FileIcon name={file} />{file}{file === active && draft !== files[active] ? <strong>●</strong> : null}
-                <button onClick={(event) => { event.stopPropagation(); closeTab(file); }}><X /></button>
+                <FileIcon name={file} />{file}{file === active && draft !== files[file] ? <strong>●</strong> : null}
+                <button onClick={(e) => { e.stopPropagation(); closeTab(file); }}><X /></button>
               </div>
             ))}
             <button className="newtab" onClick={newFile}><Plus /></button>
           </div>
 
           <div className="toolbar">
-            <select value={language} onChange={(event) => requestLanguageChange(event.target.value)}>
+            <select value={language} onChange={(e) => requestLanguageChange(e.target.value)}>
               {LANGUAGES.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
             </select>
             <button onClick={format}>Format</button>
-            <button onClick={() => setZoom((value) => Math.min(24, value + 1))}>A+</button>
-            <button onClick={() => setZoom((value) => Math.max(10, value - 1))}>A−</button>
-            <button onClick={() => setSplit((value) => !value)}><SplitSquareHorizontal /></button>
+            <button onClick={() => setZoom((v) => Math.min(24, v + 1))}>A+</button>
+            <button onClick={() => setZoom((v) => Math.max(10, v - 1))}>A−</button>
+            <button onClick={() => setSplit((v) => !v)}><SplitSquareHorizontal /></button>
             <span>{draft === files[active] ? 'Saved' : 'Unsaved changes'} · {draft.length} chars · Ln {lines.length}</span>
           </div>
 
@@ -502,96 +573,61 @@ function App() {
                 value={draft}
                 onChange={(value) => setDraft(value ?? '')}
                 beforeMount={(monaco) => {
-                  monaco.languages.register({ id: 'flux', extensions: ['.flux'], aliases: ['Flux'] });
-                  monaco.languages.setMonarchTokensProvider('flux', {
-                    tokenizer: {
-                      root: [
-                        [/\/\/.*$/, 'comment'],
-                        [/\b(fn|function|let|const|if|else|return|true|false|struct|import|from|match|for|while|in)\b/, 'keyword'],
-                        [/\x22[^\x22]*\x22/, 'string'],
-                        [/\b\d+(\.\d+)?\b/, 'number'],
-                        [/\b[A-Z][A-Za-z0-9_]*\b/, 'type'],
-                        [/[{}()[\]]/, 'delimiter.bracket']
-                      ]
-                    }
-                  });
+                  registerFluxLanguage(monaco);
                   monaco.editor.defineTheme('fluxide-monokai', {
-                    base: 'vs-dark',
-                    inherit: false,
+                    base: 'vs-dark', inherit: false,
                     rules: [
                       { token: 'comment', foreground: '75715E' },
                       { token: 'keyword', foreground: 'F92672' },
-                      { token: 'number', foreground: 'AE81FF' },
-                      { token: 'string', foreground: 'E6DB74' },
                       { token: 'type', foreground: '66D9EF' },
-                      { token: 'delimiter', foreground: 'F8F8F2' }
+                      { token: 'predefined', foreground: 'A6E22E' },
+                      { token: 'constant', foreground: 'AE81FF' },
+                      { token: 'number', foreground: 'AE81FF' },
+                      { token: 'number.float', foreground: 'AE81FF' },
+                      { token: 'number.hex', foreground: 'AE81FF' },
+                      { token: 'number.binary', foreground: 'AE81FF' },
+                      { token: 'number.octal', foreground: 'AE81FF' },
+                      { token: 'string', foreground: 'E6DB74' },
+                      { token: 'string.escape', foreground: 'FD971F' },
+                      { token: 'annotation', foreground: 'F8F8F2' },
+                      { token: 'operator', foreground: 'F92672' },
+                      { token: 'delimiter', foreground: 'F8F8F2' },
+                      { token: 'variable', foreground: 'F8F8F2' },
+                      { token: 'identifier', foreground: 'F8F8F2' }
                     ],
                     colors: {
-                      'editor.background': '#272822',
-                      'editor.foreground': '#F8F8F2',
-                      'editorLineNumber.foreground': '#75715E',
-                      'editorLineNumber.activeForeground': '#F8F8F2',
-                      'editorCursor.foreground': '#F8F8F0',
-                      'editor.selectionBackground': '#49483E',
-                      'editor.inactiveSelectionBackground': '#3E3D32',
-                      'editor.lineHighlightBackground': '#2E2F28',
-                      'editorIndentGuide.background': '#3E3D32',
-                      'editorIndentGuide.activeBackground': '#75715E',
-                      'editorWidget.background': '#1E1F1C',
-                      'editorSuggestWidget.background': '#1E1F1C',
+                      'editor.background': '#272822', 'editor.foreground': '#F8F8F2',
+                      'editorLineNumber.foreground': '#75715E', 'editorLineNumber.activeForeground': '#F8F8F2',
+                      'editorCursor.foreground': '#F8F8F0', 'editor.selectionBackground': '#49483E',
+                      'editor.inactiveSelectionBackground': '#3E3D32', 'editor.lineHighlightBackground': '#2E2F28',
+                      'editorIndentGuide.background': '#3E3D32', 'editorIndentGuide.activeBackground': '#75715E',
+                      'editorWidget.background': '#1E1F1C', 'editorSuggestWidget.background': '#1E1F1C',
                       'editorSuggestWidget.border': '#49483E'
                     }
                   });
                 }}
                 options={{
-                  fontSize: zoom,
-                  minimap: { enabled: true },
-                  automaticLayout: true,
-                  tabSize: 2,
-                  wordWrap: 'on',
-                  bracketPairColorization: { enabled: true },
-                  smoothScrolling: true,
-                  stickyScroll: { enabled: true },
-                  codeLens: true,
-                  renderWhitespace: 'selection',
-                  quickSuggestions: true
+                  fontSize: zoom, minimap: { enabled: true }, automaticLayout: true, tabSize: 2,
+                  wordWrap: 'on', bracketPairColorization: { enabled: true }, smoothScrolling: true,
+                  stickyScroll: { enabled: true }, codeLens: true, renderWhitespace: 'selection', quickSuggestions: true
                 }}
               />
             </div>
-            {split && (
-              <div className="editor second">
-                <Editor height="100%" theme={editorTheme} language={language} value={draft} options={{ fontSize: zoom, minimap: { enabled: false }, automaticLayout: true, readOnly: true, wordWrap: 'on' }} />
-              </div>
-            )}
+            {split && <div className="editor second"><Editor height="100%" theme={editorTheme} language={language} value={draft} options={{ fontSize: zoom, minimap: { enabled: false }, automaticLayout: true, readOnly: true, wordWrap: 'on' }} /></div>}
           </div>
 
           {panel && (
             <div className="bottom">
               <div className="bottom-tabs">
-                {[
-                  ['output', Terminal, 'Output'], ['problems', CheckCircle2, 'Problems'],
-                  ['source', GitBranch, 'Source Control'], ['history', History, 'History'],
-                  ['terminal', Command, 'Terminal']
-                ].map(([id, Icon, name]) => (
+                {[['output', Terminal, 'Output'], ['problems', CheckCircle2, 'Problems'], ['source', GitBranch, 'Source Control'], ['history', History, 'History'], ['terminal', Command, 'Terminal']].map(([id, Icon, name]) => (
                   <button className={panel === id ? 'selected' : ''} key={id} onClick={() => togglePanel(id)}><Icon /> {name}</button>
                 ))}
                 <button className="panel-close" onClick={() => setPanel(null)}><X /></button>
               </div>
               {panel === 'terminal' ? (
-                <div className="terminal">
-                  <span>$</span>
-                  <input autoFocus value={terminal} onChange={(event) => setTerminal(event.target.value)} onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      setOutput(`$ ${terminal}\nBrowser terminal: execution requires Electron.`);
-                      setPanel('output');
-                      setTerminal('');
-                    }
-                  }} />
-                </div>
+                <div className="terminal"><span>$</span><input autoFocus value={terminal} onChange={(e) => setTerminal(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { setOutput(`$ ${terminal}\nBrowser terminal: commands require the Electron runtime.`); setPanel('output'); setTerminal(''); } }} /></div>
               ) : (
-                <pre>
-                  {panel === 'output' ? output : panel === 'problems' ? '✓ No problems reported.' : panel === 'source' ? 'Browser source control workspace ready. Native Git requires Electron or a backend.' : history.length ? history.map((item) => `${item.time}  ${item.file}`).join('\n') : 'No local history yet.'}
-                </pre>
+                <pre>{panel === 'output' ? output : panel === 'problems' ? '✓ No problems reported.' : panel === 'source' ? 'Browser source control workspace ready. Native Git requires Electron or a backend.' : history.length ? history.map((item) => `${item.time}  ${item.file}`).join('\n') : 'No local history yet.'}</pre>
               )}
             </div>
           )}
@@ -599,93 +635,39 @@ function App() {
       </div>
 
       <footer>
-        <span><GitBranch /> main</span>
-        <span>{Object.keys(files).length} files</span>
-        <span>{language}</span>
-        <span>Ln {lines.length}</span>
-        <span>Spaces: 2</span>
-        <span>UTF-8</span>
-        <span className="grow" />
-        <button className="icon" onClick={() => setTheme((value) => value === 'monokai' ? 'light' : value === 'light' ? 'dark' : 'monokai')}>
-          {theme === 'light' ? <Moon /> : <Sun />}
-        </button>
+        <span><GitBranch /> main</span><span>{Object.keys(files).length} files</span><span>{language}</span><span>Ln {lines.length}</span><span>Spaces: 2</span><span>UTF-8</span><span className="grow" />
+        <button className="icon" onClick={() => setTheme((v) => v === 'monokai' ? 'light' : v === 'light' ? 'dark' : 'monokai')}>{theme === 'light' ? <Moon /> : <Sun />}</button>
       </footer>
 
       {palette && (
         <div className="overlay" onClick={() => setPalette(false)}>
-          <div className="palette" onClick={(event) => event.stopPropagation()}>
+          <div className="palette" onClick={(e) => e.stopPropagation()}>
             <input autoFocus placeholder="Type a command…" />
-            <button onClick={() => command('new')}><FilePlus /> New File</button>
-            <button onClick={() => command('project')}><FolderPlus /> New Project</button>
-            <button onClick={() => command('rename')}><Pencil /> Rename File</button>
-            <button onClick={() => command('save')}><Save /> Save</button>
-            <button onClick={() => command('run')}><Play /> Run</button>
-            <button onClick={() => command('live')}><Globe /> Start Live Server</button>
-            <button onClick={() => command('format')}><Braces /> Format Document</button>
-            <button onClick={() => command('split')}><SplitSquareHorizontal /> Split Editor</button>
-            <button onClick={() => command('terminal')}><Terminal /> Terminal</button>
-            <button onClick={() => command('problems')}><CheckCircle2 /> Problems</button>
-            <button onClick={() => command('outline')}><Eye /> Toggle Outline</button>
-            <button onClick={() => command('download')}><Download /> Export</button>
-            <button onClick={() => command('upload')}><Upload /> Import</button>
-            <button onClick={() => command('updates')}><RefreshCw /> Check Updates</button>
-            <button onClick={() => command('settings')}><Settings /> Settings</button>
+            {[['new', FilePlus, 'New File'], ['project', FolderPlus, 'New Project'], ['rename', Pencil, 'Rename File'], ['save', Save, 'Save'], ['run', Play, 'Run'], ['live', Globe, 'Start Live Server'], ['format', Braces, 'Format Document'], ['split', SplitSquareHorizontal, 'Split Editor'], ['terminal', Terminal, 'Terminal'], ['problems', CheckCircle2, 'Problems'], ['outline', Eye, 'Toggle Outline'], ['download', Download, 'Export'], ['upload', Upload, 'Import'], ['updates', RefreshCw, 'Check Updates'], ['settings', Settings, 'Settings']].map(([id, Icon, label]) => <button key={id} onClick={() => command(id)}><Icon /> {label}</button>)}
           </div>
         </div>
       )}
 
       {pendingLanguage && (
         <div className="overlay" onClick={() => setPendingLanguage(null)}>
-          <div className="settings" onClick={(event) => event.stopPropagation()}>
+          <div className="settings" onClick={(e) => e.stopPropagation()}>
             <h2>Change file type?</h2>
-            <p>
-              You selected <strong>{LANGUAGES.find(([id]) => id === pendingLanguage.nextLanguage)?.[1]}</strong> for <strong>{active}</strong>.
-              FluxIDE can rename it to <strong>{pendingLanguage.proposedName}</strong>.
-            </p>
-            <div className="language-warning">
-              <strong>⚠ Before you proceed</strong>
-              <ul>
-                <li>This only changes the file extension and editor language. It does <strong>not</strong> convert your code.</li>
-                <li>The existing code may not be valid in the new language and may produce errors.</li>
-                <li>Build scripts, imports, tooling, or project configuration may depend on the old filename.</li>
-                <li>If the new filename already exists, FluxIDE will not overwrite it.</li>
-              </ul>
-            </div>
-            <div className="settings-actions">
-              <button onClick={() => setPendingLanguage(null)}>Cancel</button>
-              <button className="primary" onClick={confirmLanguageChange}><Zap /> Proceed & Rename</button>
-            </div>
+            <p>You selected <strong>{LANGUAGES.find(([id]) => id === pendingLanguage.nextLanguage)?.[1]}</strong> for <strong>{active}</strong>. FluxIDE can rename it to <strong>{pendingLanguage.proposedName}</strong>.</p>
+            <div className="language-warning"><strong>⚠ Before you proceed</strong><ul><li>This changes the extension and editor language; it does not convert the code.</li><li>The code may not be valid in the new language.</li><li>Imports, tooling, build scripts, or configuration may depend on the old filename.</li><li>FluxIDE will never overwrite an existing file with the new name.</li></ul></div>
+            <div className="settings-actions"><button onClick={() => setPendingLanguage(null)}>Cancel</button><button className="primary" onClick={confirmLanguageChange}><Zap /> Proceed & Rename</button></div>
           </div>
         </div>
       )}
 
       {renameOpen && (
         <div className="overlay" onClick={() => setRenameOpen(false)}>
-          <div className="settings" onClick={(event) => event.stopPropagation()}>
-            <h2>Rename file</h2>
-            <label>
-              File name
-              <input autoFocus value={renameValue} onChange={(event) => setRenameValue(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && renameFile()} />
-            </label>
-            <div className="settings-actions">
-              <button onClick={() => setRenameOpen(false)}>Cancel</button>
-              <button className="primary" onClick={renameFile}><Pencil /> Rename</button>
-            </div>
-          </div>
+          <div className="settings" onClick={(e) => e.stopPropagation()}><h2>Rename file</h2><label>File name<input autoFocus value={renameValue} onChange={(e) => setRenameValue(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && renameFile()} /></label><div className="settings-actions"><button onClick={() => setRenameOpen(false)}>Cancel</button><button className="primary" onClick={renameFile}><Pencil /> Rename</button></div></div>
         </div>
       )}
 
       {settings && (
         <div className="overlay" onClick={() => setSettings(false)}>
-          <div className="settings" onClick={(event) => event.stopPropagation()}>
-            <h2>FluxIDE Settings</h2>
-            <label>
-              Editor font size
-              <input type="number" min="10" max="24" value={zoom} onChange={(event) => setZoom(Number(event.target.value))} />
-            </label>
-            <p>Browser workspace data is stored locally. Native folders, terminal processes, debugging and real Git are reserved for the Electron/backend phase.</p>
-            <button onClick={() => setSettings(false)}>Close</button>
-          </div>
+          <div className="settings" onClick={(e) => e.stopPropagation()}><h2>FluxIDE Settings</h2><label>Editor font size<input type="number" min="10" max="24" value={zoom} onChange={(e) => setZoom(Number(e.target.value))} /></label><p>Browser workspace data is stored locally. Native folders, terminal processes, debugging and real Git are reserved for the Electron/backend phase.</p><button onClick={() => setSettings(false)}>Close</button></div>
         </div>
       )}
     </div>
