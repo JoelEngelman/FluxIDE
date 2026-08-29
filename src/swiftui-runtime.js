@@ -15,9 +15,8 @@ function executeSwiftUI(source, filename) {
   var content = '';
   var title = firstMatch(source, /(?:navigationTitle|Text)\s*\(\s*["']([^"']+)["']\s*\)/, 'SwiftUI Preview');
 
-  // This is intentionally a browser renderer, not a Swift compiler. It understands
-  // common SwiftUI view syntax and produces an interactive HTML preview, so Apple
-  // SDKs are never requested and SwiftUI does not need macOS/Xcode.
+  // Browser-only SwiftUI-style renderer. It deliberately never invokes Swift,
+  // SwiftUI, UIKit, AppKit, Xcode, or Apple's SDKs.
   var textPattern = /\b(?:Text|Label)\s*\(\s*["']([^"']+)["']/g;
   var buttonPattern = /\bButton\s*\(\s*["']([^"']+)["']/g;
   var fieldPattern = /\bTextField\s*\(\s*["']([^"']+)["']/g;
