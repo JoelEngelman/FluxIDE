@@ -231,24 +231,10 @@ function registerFluxLanguage(monaco) {
   });
 
   monaco.languages.registerCompletionItemProvider('flux', {
-    triggerCharacters: ['.', ':', '@'],
-    provideCompletionItems(model, position) {
-      const range = {
-        startLineNumber: position.lineNumber,
-        endLineNumber: position.lineNumber,
-        startColumn: position.column,
-        endColumn: position.column
-      };
-      const suggestions = [...keywords, ...types, ...builtins]
-        .filter((word, index, list) => list.indexOf(word) === index)
-        .map((word) => ({
-          label: word,
-          kind: monaco.languages.CompletionItemKind.Keyword,
-          insertText: word,
-          range
-        }));
-      return { suggestions };
-    }
+    triggerCharacters: ['.', ':'],
+    provideCompletionItems: () => ({ suggestions: builtins.map((label) => ({
+      label, kind: monaco.languages.CompletionItemKind.Function, insertText: label
+    })) })
   });
 }
 
@@ -394,6 +380,20 @@ function App() {
 
   function run() {
     setPanel('output');
+
+    if (language === 'swift' && /(^|\n)\s*(import\s+(SwiftUI|UIKit|AppKit)|@main\b|struct\s+\w+\s*:\s*(View|App)|UIViewController\b)/m.test(draft)) {
+      setOutput(
+        '🍎 SwiftUI / Apple SDK detected.\n\n' +
+        'FluxIDE can edit and syntax-highlight this Swift file, but the current Swift runner does not include Apple\'s iOS/macOS SDKs.\n\n' +
+        'Editing & syntax highlighting: ✓\n' +
+        'Standard Swift compilation: ✓\n' +
+        'SwiftUI / UIKit / AppKit compilation: ⚠ Requires macOS + Xcode\n\n' +
+        'The previous compiler error ("no such module SwiftUI") happens because SwiftUI is supplied by Apple\'s SDK, not by the standalone Swift compiler.\n\n' +
+        'For a real iPhone app, open the project on a Mac in Xcode.'
+      );
+      return;
+    }
+
     if (language === 'javascript') {
       const oldLog = console.log;
       const logs = [];
@@ -408,6 +408,7 @@ function App() {
       }
       return;
     }
+
     if (language === 'flux') {
       const printMatches = [...draft.matchAll(/\b(?:print|say)\s*\(\s*["']([\s\S]*?)["']\s*\)/g)];
       if (printMatches.length) {
@@ -417,6 +418,7 @@ function App() {
       }
       return;
     }
+
     setOutput(`${LANGUAGES.find(([id]) => id === language)?.[1] || language} editing is supported. Browser execution is not available for this language yet.`);
   }
 
@@ -524,17 +526,16 @@ function App() {
             </div>
             <div className="outline">
               <div onClick={() => setOutline((v) => !v)}>{outline ? <ChevronDown /> : <ChevronRight />}<Braces /> OUTLINE</div>
-              {outline && <small>{lines.filter((line) => /function|class|const|let|var|fn|struct|create|define|project|module/.test(line)).slice(0, 10).map((line, i) => <span key={i}>{line.trim().slice(0, 45)}</span>)}</small>}
+              {outline && <small>{lines.filter((line) => /function|class|const|let|var|fn|struct/.test(line)).slice(0, 10).map((line, index) => <span key={index}>{line.trim().slice(0, 45)}</span>)}</small>}
             </div>
             <div className="side-bottom">
               <button onClick={newFile}><FilePlus /> New File</button>
-              <button onClick={openRename}><Pencil /> Rename</button>
               <button onClick={upload}><Upload /> Import Files</button>
               <button onClick={download}><Download /> Export File</button>
               <button onClick={copy}><Copy /> Copy Contents</button>
               <button onClick={duplicate}><Copy /> Duplicate</button>
+              <button onClick={openRename}><Pencil /> Rename</button>
               <button onClick={remove}><Trash2 /> Delete</button>
-              <button onClick={openLiveServer}><Globe /> Live Server</button>
               <button onClick={() => togglePanel('source')}><GitBranch /> Source Control</button>
               <button onClick={() => togglePanel('history')}><History /> Local History</button>
               <button onClick={() => setSettings(true)}><Settings /> Settings</button>
@@ -547,19 +548,19 @@ function App() {
             {tabs.map((file) => (
               <div className={`tab ${file === active ? 'tab-active' : ''}`} key={file} onClick={() => setActive(file)}>
                 <FileIcon name={file} />{file}{file === active && draft !== files[file] ? <strong>●</strong> : null}
-                <button onClick={(e) => { e.stopPropagation(); closeTab(file); }}><X /></button>
+                <button onClick={(event) => { event.stopPropagation(); closeTab(file); }}><X /></button>
               </div>
             ))}
             <button className="newtab" onClick={newFile}><Plus /></button>
           </div>
 
           <div className="toolbar">
-            <select value={language} onChange={(e) => requestLanguageChange(e.target.value)}>
+            <select value={language} onChange={(event) => requestLanguageChange(event.target.value)}>
               {LANGUAGES.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
             </select>
             <button onClick={format}>Format</button>
-            <button onClick={() => setZoom((v) => Math.min(24, v + 1))}>A+</button>
-            <button onClick={() => setZoom((v) => Math.max(10, v - 1))}>A−</button>
+            <button onClick={() => setZoom((z) => Math.min(24, z + 1))}>A+</button>
+            <button onClick={() => setZoom((z) => Math.max(10, z - 1))}>A−</button>
             <button onClick={() => setSplit((v) => !v)}><SplitSquareHorizontal /></button>
             <span>{draft === files[active] ? 'Saved' : 'Unsaved changes'} · {draft.length} chars · Ln {lines.length}</span>
           </div>
@@ -572,45 +573,8 @@ function App() {
                 language={language}
                 value={draft}
                 onChange={(value) => setDraft(value ?? '')}
-                beforeMount={(monaco) => {
-                  registerFluxLanguage(monaco);
-                  monaco.editor.defineTheme('fluxide-monokai', {
-                    base: 'vs-dark', inherit: false,
-                    rules: [
-                      { token: 'comment', foreground: '75715E' },
-                      { token: 'keyword', foreground: 'F92672' },
-                      { token: 'type', foreground: '66D9EF' },
-                      { token: 'predefined', foreground: 'A6E22E' },
-                      { token: 'constant', foreground: 'AE81FF' },
-                      { token: 'number', foreground: 'AE81FF' },
-                      { token: 'number.float', foreground: 'AE81FF' },
-                      { token: 'number.hex', foreground: 'AE81FF' },
-                      { token: 'number.binary', foreground: 'AE81FF' },
-                      { token: 'number.octal', foreground: 'AE81FF' },
-                      { token: 'string', foreground: 'E6DB74' },
-                      { token: 'string.escape', foreground: 'FD971F' },
-                      { token: 'annotation', foreground: 'F8F8F2' },
-                      { token: 'operator', foreground: 'F92672' },
-                      { token: 'delimiter', foreground: 'F8F8F2' },
-                      { token: 'variable', foreground: 'F8F8F2' },
-                      { token: 'identifier', foreground: 'F8F8F2' }
-                    ],
-                    colors: {
-                      'editor.background': '#272822', 'editor.foreground': '#F8F8F2',
-                      'editorLineNumber.foreground': '#75715E', 'editorLineNumber.activeForeground': '#F8F8F2',
-                      'editorCursor.foreground': '#F8F8F0', 'editor.selectionBackground': '#49483E',
-                      'editor.inactiveSelectionBackground': '#3E3D32', 'editor.lineHighlightBackground': '#2E2F28',
-                      'editorIndentGuide.background': '#3E3D32', 'editorIndentGuide.activeBackground': '#75715E',
-                      'editorWidget.background': '#1E1F1C', 'editorSuggestWidget.background': '#1E1F1C',
-                      'editorSuggestWidget.border': '#49483E'
-                    }
-                  });
-                }}
-                options={{
-                  fontSize: zoom, minimap: { enabled: true }, automaticLayout: true, tabSize: 2,
-                  wordWrap: 'on', bracketPairColorization: { enabled: true }, smoothScrolling: true,
-                  stickyScroll: { enabled: true }, codeLens: true, renderWhitespace: 'selection', quickSuggestions: true
-                }}
+                beforeMount={registerFluxLanguage}
+                options={{ fontSize: zoom, minimap: { enabled: true }, automaticLayout: true, tabSize: 2, wordWrap: 'on', bracketPairColorization: { enabled: true }, smoothScrolling: true, stickyScroll: { enabled: true }, codeLens: true, renderWhitespace: 'selection', quickSuggestions: true }}
               />
             </div>
             {split && <div className="editor second"><Editor height="100%" theme={editorTheme} language={language} value={draft} options={{ fontSize: zoom, minimap: { enabled: false }, automaticLayout: true, readOnly: true, wordWrap: 'on' }} /></div>}
@@ -619,13 +583,13 @@ function App() {
           {panel && (
             <div className="bottom">
               <div className="bottom-tabs">
-                {[['output', Terminal, 'Output'], ['problems', CheckCircle2, 'Problems'], ['source', GitBranch, 'Source Control'], ['history', History, 'History'], ['terminal', Command, 'Terminal']].map(([id, Icon, name]) => (
-                  <button className={panel === id ? 'selected' : ''} key={id} onClick={() => togglePanel(id)}><Icon /> {name}</button>
+                {[['output', Terminal, 'Output'], ['problems', CheckCircle2, 'Problems'], ['source', GitBranch, 'Source Control'], ['history', History, 'History'], ['terminal', Command, 'Terminal']].map(([id, Icon, label]) => (
+                  <button className={panel === id ? 'selected' : ''} key={id} onClick={() => togglePanel(id)}><Icon /> {label}</button>
                 ))}
                 <button className="panel-close" onClick={() => setPanel(null)}><X /></button>
               </div>
               {panel === 'terminal' ? (
-                <div className="terminal"><span>$</span><input autoFocus value={terminal} onChange={(e) => setTerminal(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { setOutput(`$ ${terminal}\nBrowser terminal: commands require the Electron runtime.`); setPanel('output'); setTerminal(''); } }} /></div>
+                <div className="terminal"><span>$</span><input autoFocus value={terminal} onChange={(event) => setTerminal(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') { setOutput(`$ ${terminal}\nBrowser terminal: execution requires Electron.`); setPanel('output'); setTerminal(''); } }} /></div>
               ) : (
                 <pre>{panel === 'output' ? output : panel === 'problems' ? '✓ No problems reported.' : panel === 'source' ? 'Browser source control workspace ready. Native Git requires Electron or a backend.' : history.length ? history.map((item) => `${item.time}  ${item.file}`).join('\n') : 'No local history yet.'}</pre>
               )}
@@ -636,38 +600,67 @@ function App() {
 
       <footer>
         <span><GitBranch /> main</span><span>{Object.keys(files).length} files</span><span>{language}</span><span>Ln {lines.length}</span><span>Spaces: 2</span><span>UTF-8</span><span className="grow" />
-        <button className="icon" onClick={() => setTheme((v) => v === 'monokai' ? 'light' : v === 'light' ? 'dark' : 'monokai')}>{theme === 'light' ? <Moon /> : <Sun />}</button>
+        <button className="icon" onClick={() => setTheme((current) => current === 'monokai' ? 'light' : current === 'light' ? 'dark' : 'monokai')}>{theme === 'light' ? <Moon /> : <Sun />}</button>
       </footer>
 
       {palette && (
         <div className="overlay" onClick={() => setPalette(false)}>
-          <div className="palette" onClick={(e) => e.stopPropagation()}>
+          <div className="palette" onClick={(event) => event.stopPropagation()}>
             <input autoFocus placeholder="Type a command…" />
-            {[['new', FilePlus, 'New File'], ['project', FolderPlus, 'New Project'], ['rename', Pencil, 'Rename File'], ['save', Save, 'Save'], ['run', Play, 'Run'], ['live', Globe, 'Start Live Server'], ['format', Braces, 'Format Document'], ['split', SplitSquareHorizontal, 'Split Editor'], ['terminal', Terminal, 'Terminal'], ['problems', CheckCircle2, 'Problems'], ['outline', Eye, 'Toggle Outline'], ['download', Download, 'Export'], ['upload', Upload, 'Import'], ['updates', RefreshCw, 'Check Updates'], ['settings', Settings, 'Settings']].map(([id, Icon, label]) => <button key={id} onClick={() => command(id)}><Icon /> {label}</button>)}
+            <button onClick={() => command('new')}><FilePlus /> New File</button>
+            <button onClick={() => command('project')}><FolderPlus /> New Project</button>
+            <button onClick={() => command('rename')}><Pencil /> Rename File</button>
+            <button onClick={() => command('save')}><Save /> Save</button>
+            <button onClick={() => command('run')}><Play /> Run</button>
+            <button onClick={() => command('live')}><Globe /> Live Server</button>
+            <button onClick={() => command('format')}><Braces /> Format Document</button>
+            <button onClick={() => command('split')}><SplitSquareHorizontal /> Split Editor</button>
+            <button onClick={() => command('terminal')}><Terminal /> Terminal</button>
+            <button onClick={() => command('problems')}><CheckCircle2 /> Problems</button>
+            <button onClick={() => command('outline')}><Eye /> Toggle Outline</button>
+            <button onClick={() => command('download')}><Download /> Export</button>
+            <button onClick={() => command('upload')}><Upload /> Import</button>
+            <button onClick={() => command('updates')}><RefreshCw /> Check Updates</button>
+            <button onClick={() => command('settings')}><Settings /> Settings</button>
+          </div>
+        </div>
+      )}
+
+      {settings && (
+        <div className="overlay" onClick={() => setSettings(false)}>
+          <div className="settings" onClick={(event) => event.stopPropagation()}>
+            <h2>FluxIDE Settings</h2>
+            <label>Editor font size<input type="number" min="10" max="24" value={zoom} onChange={(event) => setZoom(Number(event.target.value))} /></label>
+            <p>Browser workspace data is stored locally. Native folders, terminal processes, debugging and real Git are reserved for the Electron/backend phase.</p>
+            <button onClick={() => setSettings(false)}>Close</button>
           </div>
         </div>
       )}
 
       {pendingLanguage && (
         <div className="overlay" onClick={() => setPendingLanguage(null)}>
-          <div className="settings" onClick={(e) => e.stopPropagation()}>
+          <div className="settings" onClick={(event) => event.stopPropagation()}>
             <h2>Change file type?</h2>
-            <p>You selected <strong>{LANGUAGES.find(([id]) => id === pendingLanguage.nextLanguage)?.[1]}</strong> for <strong>{active}</strong>. FluxIDE can rename it to <strong>{pendingLanguage.proposedName}</strong>.</p>
-            <div className="language-warning"><strong>⚠ Before you proceed</strong><ul><li>This changes the extension and editor language; it does not convert the code.</li><li>The code may not be valid in the new language.</li><li>Imports, tooling, build scripts, or configuration may depend on the old filename.</li><li>FluxIDE will never overwrite an existing file with the new name.</li></ul></div>
-            <div className="settings-actions"><button onClick={() => setPendingLanguage(null)}>Cancel</button><button className="primary" onClick={confirmLanguageChange}><Zap /> Proceed & Rename</button></div>
+            <p>This will rename <strong>{active}</strong> to <strong>{pendingLanguage.proposedName}</strong> and change the editor language.</p>
+            <p><strong>Risks:</strong> changing the file extension can alter syntax highlighting, tooling, formatting and how other programs interpret the file. The code itself will not be automatically converted.</p>
+            <div className="settings-actions">
+              <button onClick={() => setPendingLanguage(null)}>Cancel</button>
+              <button onClick={confirmLanguageChange}>Proceed & Rename</button>
+            </div>
           </div>
         </div>
       )}
 
       {renameOpen && (
         <div className="overlay" onClick={() => setRenameOpen(false)}>
-          <div className="settings" onClick={(e) => e.stopPropagation()}><h2>Rename file</h2><label>File name<input autoFocus value={renameValue} onChange={(e) => setRenameValue(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && renameFile()} /></label><div className="settings-actions"><button onClick={() => setRenameOpen(false)}>Cancel</button><button className="primary" onClick={renameFile}><Pencil /> Rename</button></div></div>
-        </div>
-      )}
-
-      {settings && (
-        <div className="overlay" onClick={() => setSettings(false)}>
-          <div className="settings" onClick={(e) => e.stopPropagation()}><h2>FluxIDE Settings</h2><label>Editor font size<input type="number" min="10" max="24" value={zoom} onChange={(e) => setZoom(Number(e.target.value))} /></label><p>Browser workspace data is stored locally. Native folders, terminal processes, debugging and real Git are reserved for the Electron/backend phase.</p><button onClick={() => setSettings(false)}>Close</button></div>
+          <div className="settings" onClick={(event) => event.stopPropagation()}>
+            <h2>Rename File</h2>
+            <input autoFocus value={renameValue} onChange={(event) => setRenameValue(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') renameFile(); }} />
+            <div className="settings-actions">
+              <button onClick={() => setRenameOpen(false)}>Cancel</button>
+              <button onClick={renameFile}>Rename</button>
+            </div>
+          </div>
         </div>
       )}
     </div>
