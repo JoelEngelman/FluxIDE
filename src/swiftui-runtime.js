@@ -68,7 +68,7 @@ function executeSwiftUI(source, filename) {
     '*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% 25%,#30343b 0,#16181c 42%,#08090b 100%);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",sans-serif}' +
     'body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:42px 24px;color:#111}' +
     '.device-wrap{position:relative;filter:drop-shadow(0 34px 45px rgba(0,0,0,.55));padding:1px}' +
-    '.device{position:relative;width:min(393px,88vw);height:min(852px,88vh);min-height:620px;background:linear-gradient(145deg,#f4f5f7,#777b81 18%,#17191c 20%,#0b0c0e 80%,#60656b);border-radius:56px;padding:7px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.38),inset 0 0 0 3px rgba(0,0,0,.8),0 0 0 1px #050505;overflow:hidden}' +
+    '.device{position:relative;width:min(393px,88vw,calc(88vh * 393 / 852));aspect-ratio:393/852;height:auto;min-height:0;flex:none;background:linear-gradient(145deg,#f4f5f7,#777b81 18%,#17191c 20%,#0b0c0e 80%,#60656b);border-radius:56px;padding:7px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.38),inset 0 0 0 3px rgba(0,0,0,.8),0 0 0 1px #050505;overflow:hidden}' +
     '.device:before{content:"";position:absolute;inset:4px;border-radius:51px;border:1px solid rgba(255,255,255,.18);pointer-events:none;z-index:8}' +
     '.screen-shell{position:relative;width:100%;height:100%;overflow:hidden;border-radius:49px;background:#f2f2f7}' +
     '.dynamic-island{position:absolute;z-index:20;top:12px;left:50%;transform:translateX(-50%);width:124px;height:36px;border-radius:22px;background:#050505;box-shadow:inset 0 1px 2px rgba(255,255,255,.08),0 1px 2px rgba(0,0,0,.45)}' +
@@ -83,7 +83,7 @@ function executeSwiftUI(source, filename) {
     '.swift-image{display:flex;align-items:center;gap:10px;font-size:17px;padding:12px;background:#fff;border-radius:12px;color:#333}.sf-symbol{font-size:22px;color:#007aff}.empty{text-align:center;color:#777;padding:40px 10px;line-height:1.7}' +
     '.home-indicator{position:absolute;z-index:25;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:99px;background:#111;opacity:.9}' +
     '.side-button{position:absolute;left:-3px;width:4px;border-radius:4px;background:#6f7378;box-shadow:0 0 0 1px #18191b}.side-button.one{top:155px;height:42px}.side-button.two{top:209px;height:70px}.side-button.three{top:287px;height:70px}.power{position:absolute;right:-3px;top:218px;height:88px;width:4px;border-radius:4px;background:#6f7378;box-shadow:0 0 0 1px #18191b}' +
-    '@media(max-height:720px){.device{height:92vh}}@media(max-width:600px){body{padding:18px}.device{width:min(393px,94vw);height:min(852px,91vh);border-radius:48px}.screen-shell{border-radius:42px}}' +
+    '@media(max-width:600px){body{padding:18px}.device{width:min(393px,94vw,calc(91vh * 393 / 852));border-radius:48px}.screen-shell{border-radius:42px}}' +
     '</style></head><body><div class="device-wrap"><span class="side-button one"></span><span class="side-button two"></span><span class="side-button three"></span><span class="power"></span><div class="device"><div class="screen-shell"><div class="dynamic-island"></div><div class="status"><span>9:41</span></div><main class="screen ' + layoutClass + '"><h1>' + escapeHtml(title) + '</h1>' + content + '</main><div class="home-indicator"></div></div></div></div></body></html>';
 
   var url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
