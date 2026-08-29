@@ -10,11 +10,6 @@ permissions:
   pages: write
   id-token: write
 
-# Queue runs instead of cancelling the previous deployment.
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,16 +27,20 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: ./dist
+
   deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    concurrency:
+      group: github-pages-deploy
+      cancel-in-progress: true
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
     steps:
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
