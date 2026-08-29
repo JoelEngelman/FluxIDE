@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
 
       - name: Patch FluxIDE
-        shell: python
+        shell: python3 {0}
         run: |
           from pathlib import Path
 
@@ -86,65 +86,28 @@ function swiftText(value) {
   return String(value || '').replace(/^\s*["']|["']\s*$/g, '').replace(/\\n/g, '\n').replace(/\\"/g, '"');
 }
 
-function extractQuoted(rest) {
-  const match = rest.match(/["']([\\s\\S]*?)["']/);
-  return match ? swiftText(match[1]) : '';
-}
-
 function renderView(source) {
   const root = document.createElement('div');
   root.className = 'swift-vstack';
   const stack = [root];
   const lines = stripSwift(source).split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
 
-  for (let line of lines) {
-    if (/^VStack\b/.test(line)) {
-      const el = document.createElement('div'); el.className = 'swift-vstack';
-      stack[stack.length - 1].appendChild(el); stack.push(el); continue;
-    }
-    if (/^HStack\b/.test(line)) {
-      const el = document.createElement('div'); el.className = 'swift-hstack';
-      stack[stack.length - 1].appendChild(el); stack.push(el); continue;
-    }
-    if (/^ZStack\b/.test(line)) {
-      const el = document.createElement('div'); el.className = 'swift-zstack';
-      stack[stack.length - 1].appendChild(el); stack.push(el); continue;
-    }
-    if (/^}\s*$/.test(line) || /^\}\s*\.?(padding|frame|background|foregroundColor|font)/.test(line)) {
-      if (stack.length > 1) stack.pop();
-      continue;
-    }
-    if (/^Spacer\s*\(/.test(line) || /^Spacer\s*$/.test(line)) {
-      const el = document.createElement('div'); el.className = 'swift-spacer'; stack[stack.length - 1].appendChild(el); continue;
-    }
-    if (/^Divider\s*\(/.test(line)) {
-      const el = document.createElement('div'); el.className = 'swift-divider'; stack[stack.length - 1].appendChild(el); continue;
-    }
+  for (const line of lines) {
+    if (/^VStack\b/.test(line)) { const el = document.createElement('div'); el.className = 'swift-vstack'; stack[stack.length - 1].appendChild(el); stack.push(el); continue; }
+    if (/^HStack\b/.test(line)) { const el = document.createElement('div'); el.className = 'swift-hstack'; stack[stack.length - 1].appendChild(el); stack.push(el); continue; }
+    if (/^ZStack\b/.test(line)) { const el = document.createElement('div'); el.className = 'swift-zstack'; stack[stack.length - 1].appendChild(el); stack.push(el); continue; }
+    if (/^}\s*$/.test(line)) { if (stack.length > 1) stack.pop(); continue; }
+    if (/^Spacer\s*(\(\s*\))?$/.test(line)) { const el = document.createElement('div'); el.className = 'swift-spacer'; stack[stack.length - 1].appendChild(el); continue; }
+    if (/^Divider\s*\(/.test(line)) { const el = document.createElement('div'); el.className = 'swift-divider'; stack[stack.length - 1].appendChild(el); continue; }
     let match = line.match(/^Text\s*\(\s*["']([\\s\\S]*?)["']/);
-    if (match) {
-      const el = document.createElement('div'); el.className = 'swift-text'; el.textContent = swiftText(match[1]);
-      if (/\.font\s*\(\s*\.largeTitle|\.largeTitle/.test(line)) el.classList.add('swift-title');
-      stack[stack.length - 1].appendChild(el); continue;
-    }
+    if (match) { const el = document.createElement('div'); el.className = 'swift-text'; el.textContent = swiftText(match[1]); if (/\.largeTitle/.test(line)) el.classList.add('swift-title'); stack[stack.length - 1].appendChild(el); continue; }
     match = line.match(/^Button\s*\(\s*["']([\\s\\S]*?)["']/);
-    if (match) {
-      const el = document.createElement('button'); el.className = 'swift-button'; el.textContent = swiftText(match[1]);
-      el.addEventListener('click', () => { el.textContent = `${swiftText(match[1])} ✓`; });
-      stack[stack.length - 1].appendChild(el); continue;
-    }
+    if (match) { const label = swiftText(match[1]); const el = document.createElement('button'); el.className = 'swift-button'; el.textContent = label; el.addEventListener('click', () => { el.textContent = `${label} ✓`; }); stack[stack.length - 1].appendChild(el); continue; }
     match = line.match(/^Image\s*\(\s*systemName:\s*["']([^"']+)["']/);
-    if (match) {
-      const el = document.createElement('div'); el.className = 'swift-image';
-      const symbols = { star:'⭐', heart:'❤️', person:'👤', house:'⌂', gear:'⚙️', plus:'＋', checkmark:'✓', globe:'🌐', bolt:'⚡' };
-      el.textContent = symbols[match[1]] || '◉'; stack[stack.length - 1].appendChild(el); continue;
-    }
+    if (match) { const el = document.createElement('div'); el.className = 'swift-image'; const symbols = { star:'⭐', heart:'❤️', person:'👤', house:'⌂', gear:'⚙️', plus:'＋', checkmark:'✓', globe:'🌐', bolt:'⚡' }; el.textContent = symbols[match[1]] || '◉'; stack[stack.length - 1].appendChild(el); continue; }
     match = line.match(/^TextField\s*\(\s*["']([^"']*)["']/);
-    if (match) {
-      const el = document.createElement('input'); el.className = 'swift-field'; el.placeholder = swiftText(match[1]); stack[stack.length - 1].appendChild(el); continue;
-    }
-    if (/^Form\s*\{/.test(line) || /^List\s*\{/.test(line) || /^ScrollView/.test(line)) {
-      const el = document.createElement('div'); el.className = 'swift-card'; stack[stack.length - 1].appendChild(el); stack.push(el); continue;
-    }
+    if (match) { const el = document.createElement('input'); el.className = 'swift-field'; el.placeholder = swiftText(match[1]); stack[stack.length - 1].appendChild(el); continue; }
+    if (/^(Form|List|ScrollView)\s*\{/.test(line)) { const el = document.createElement('div'); el.className = 'swift-card'; stack[stack.length - 1].appendChild(el); stack.push(el); continue; }
   }
   return root;
 }
@@ -156,12 +119,9 @@ export function runSwiftUIPreview(source, { title = 'SwiftUI App', setOutput, on
     preview.document.open();
     preview.document.write(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>${CSS}</style></head><body><div class="swift-preview"><div class="iphone"><div class="swift-content" id="swift-root"></div></div></div></body></html>`);
     preview.document.close();
-    const root = preview.document.getElementById('swift-root');
-    root.appendChild(renderView(source));
+    preview.document.getElementById('swift-root').appendChild(renderView(source));
     setOutput?.(`✓ SwiftUI preview opened for ${title}.\n\nFluxIDE is rendering the SwiftUI view tree with its own browser runtime — no Xcode or macOS required.`);
-  } catch (error) {
-    onError?.(error);
-  }
+  } catch (error) { onError?.(error); }
 }
 ''', encoding='utf-8')
 
