@@ -137,5 +137,8 @@ export async function executeCode(language, source, filename) {
   }
   if (language === 'json') { JSON.parse(source); return '✓ Valid JSON. Nothing to execute.'; }
   if (['markdown', 'yaml', 'xml', 'dockerfile', 'graphql', 'plaintext'].includes(language)) return `${language} is an editable/preview-oriented file type, not an executable program.`;
+  if (language === 'swift' && /(^|\n)\s*(import\s+(SwiftUI|UIKit|AppKit)|@main\b|struct\s+\w+\s*:\s*(View|App)|UIViewController\b)/m.test(source)) {
+    throw new Error('🍎 SwiftUI / Apple SDK detected. FluxIDE can edit and syntax-highlight this Swift file, but the browser Swift runner does not include Apple\'s iOS/macOS SDKs. Standard Swift compilation works where supported; SwiftUI/UIKit/AppKit compilation requires macOS + Xcode. The previous "no such module SwiftUI" error came from the standalone Swift compiler lacking Apple\'s SDK.');
+  }
   return executeJudge0(language, source);
 }
