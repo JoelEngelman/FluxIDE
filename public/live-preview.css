@@ -1,0 +1,7 @@
+/* Integrated preview lives beside the existing editor instead of covering it. */
+#fp-live{left:50%!important;right:0!important;inset-block:0!important;width:50%!important}
+#fp-live .body{grid-template-columns:1fr!important}
+#fp-live .editor-side{display:none!important}
+#fp-live:has(.device.full){left:0!important;width:100%!important}
+#fp-live .device-stage{min-width:0;min-height:0}
+@media(max-width:800px){#fp-live{left:0!important;width:100%!important}#fp-live:has(.device.full){left:0!important;width:100%!important}}
