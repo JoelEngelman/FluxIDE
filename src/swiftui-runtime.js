@@ -22,8 +22,7 @@ function executeSwiftUI(source, filename) {
   var title = firstMatch(source, /(?:navigationTitle|Text)\s*\(\s*["']([^"']+)["']\s*\)/, 'SwiftUI Preview');
   var content = '';
 
-  // FluxIDE's SwiftUI implementation is intentionally a browser renderer.
-  // It interprets common SwiftUI view declarations and never invokes Apple's SDKs.
+  // Browser-only SwiftUI renderer. No Swift compiler, Xcode, macOS or Apple SDKs are used.
   var texts = allMatches(source, /\bText\s*\(\s*["']([^"']+)["']/g);
   var labels = allMatches(source, /\bLabel\s*\(\s*["']([^"']+)["']/g);
   var buttons = allMatches(source, /\bButton\s*\(\s*["']([^"']+)["']/g);
@@ -61,23 +60,31 @@ function executeSwiftUI(source, filename) {
   var hasZStack = /\bZStack\b/.test(source);
   var hasScroll = /\bScrollView\b/.test(source);
   var hasList = /\bList\b/.test(source);
-  var backgroundColor = firstMatch(source, /\.background\(\s*Color\.([A-Za-z]+)/, 'system');
   var layoutClass = hasHStack ? 'horizontal' : hasZStack ? 'stacked' : 'vertical';
   if (hasVStack) layoutClass = 'vertical';
   if (hasScroll || hasList) layoutClass += ' scroll';
 
-  var html = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
-    '<title>' + escapeHtml(title) + '</title><style>' +
-    '*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#111827;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;display:flex;align-items:center;justify-content:center;padding:24px}' +
-    '.device{width:min(390px,100%);min-height:760px;background:#f2f2f7;border:8px solid #111;border-radius:44px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}' +
-    '.status{height:42px;padding:13px 18px;background:#fff;font-size:11px;text-align:center;color:#555;border-bottom:1px solid #ddd}' +
-    '.screen{min-height:710px;padding:28px 22px;display:flex;align-items:stretch;justify-content:flex-start;gap:14px;overflow:auto;background:#f2f2f7}' +
-    '.screen.vertical{flex-direction:column}.screen.horizontal{flex-direction:row;align-items:center;overflow-x:auto}.screen.stacked{position:relative}.screen.scroll{overflow:auto}' +
-    '.screen h1{font-size:32px;margin:0 0 6px;font-weight:700;color:#111}.swift-text{font-size:20px;line-height:1.35;color:#111;padding:4px 0}.swift-text:first-of-type{font-size:28px;font-weight:700}.swift-label{font-size:18px;color:#333;padding:4px 0}' +
-    '.swift-button{border:0;border-radius:12px;padding:13px 18px;background:#007aff;color:#fff;font-size:17px;font-weight:600;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15)}.swift-button:active{transform:scale(.98)}' +
-    '.swift-input{border:1px solid #c7c7cc;border-radius:11px;padding:13px 14px;font-size:17px;background:#fff;outline:none}.swift-input:focus{border-color:#007aff;box-shadow:0 0 0 2px rgba(0,122,255,.15)}' +
+  var html = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + escapeHtml(title) + '</title><style>' +
+    '*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% 25%,#30343b 0,#16181c 42%,#08090b 100%);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",sans-serif}' +
+    'body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:42px 24px;color:#111}' +
+    '.device-wrap{position:relative;filter:drop-shadow(0 34px 45px rgba(0,0,0,.55));padding:1px}' +
+    '.device{position:relative;width:min(393px,88vw);height:min(852px,88vh);min-height:620px;background:linear-gradient(145deg,#f4f5f7,#777b81 18%,#17191c 20%,#0b0c0e 80%,#60656b);border-radius:56px;padding:7px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.38),inset 0 0 0 3px rgba(0,0,0,.8),0 0 0 1px #050505;overflow:hidden}' +
+    '.device:before{content:"";position:absolute;inset:4px;border-radius:51px;border:1px solid rgba(255,255,255,.18);pointer-events:none;z-index:8}' +
+    '.screen-shell{position:relative;width:100%;height:100%;overflow:hidden;border-radius:49px;background:#f2f2f7}' +
+    '.dynamic-island{position:absolute;z-index:20;top:12px;left:50%;transform:translateX(-50%);width:124px;height:36px;border-radius:22px;background:#050505;box-shadow:inset 0 1px 2px rgba(255,255,255,.08),0 1px 2px rgba(0,0,0,.45)}' +
+    '.dynamic-island:after{content:"";position:absolute;right:16px;top:11px;width:7px;height:7px;border-radius:50%;background:#18202a;box-shadow:inset 0 0 0 1px #202934}' +
+    '.status{position:absolute;z-index:15;top:0;left:0;right:0;height:58px;padding:17px 24px 0;background:linear-gradient(#ffffff 0%,rgba(255,255,255,.9) 70%,rgba(255,255,255,0));font-size:13px;font-weight:600;color:#111;text-align:left;display:flex;justify-content:space-between}' +
+    '.status:after{content:"●  ▰  100%";font-size:11px;letter-spacing:1px}' +
+    '.screen{position:absolute;inset:0;padding:82px 22px 34px;display:flex;align-items:stretch;justify-content:flex-start;gap:14px;overflow:auto;background:linear-gradient(#f8f8fa,#f2f2f7)}' +
+    '.screen.vertical{flex-direction:column}.screen.horizontal{flex-direction:row;align-items:center;overflow-x:auto}.screen.stacked{position:absolute}.screen.scroll{overflow:auto}' +
+    '.screen h1{font-size:31px;line-height:1.08;margin:0 0 4px;font-weight:750;letter-spacing:-.7px;color:#111}.swift-text{font-size:20px;line-height:1.35;color:#111;padding:4px 0}.swift-text:first-of-type{font-size:28px;font-weight:700}.swift-label{font-size:18px;color:#333;padding:4px 0}' +
+    '.swift-button{border:0;border-radius:14px;padding:14px 18px;background:#007aff;color:#fff;font-size:17px;font-weight:600;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.18)}.swift-button:active{transform:scale(.98)}' +
+    '.swift-input{border:1px solid #c7c7cc;border-radius:12px;padding:13px 14px;font-size:17px;background:#fff;outline:none}.swift-input:focus{border-color:#007aff;box-shadow:0 0 0 2px rgba(0,122,255,.15)}' +
     '.swift-image{display:flex;align-items:center;gap:10px;font-size:17px;padding:12px;background:#fff;border-radius:12px;color:#333}.sf-symbol{font-size:22px;color:#007aff}.empty{text-align:center;color:#777;padding:40px 10px;line-height:1.7}' +
-    '</style></head><body><div class="device"><div class="status">FluxIDE SwiftUI Preview · ' + escapeHtml(file) + '</div><main class="screen ' + layoutClass + '"><h1>' + escapeHtml(title) + '</h1>' + content + '</main></div></body></html>';
+    '.home-indicator{position:absolute;z-index:25;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:99px;background:#111;opacity:.9}' +
+    '.side-button{position:absolute;left:-3px;width:4px;border-radius:4px;background:#6f7378;box-shadow:0 0 0 1px #18191b}.side-button.one{top:155px;height:42px}.side-button.two{top:209px;height:70px}.side-button.three{top:287px;height:70px}.power{position:absolute;right:-3px;top:218px;height:88px;width:4px;border-radius:4px;background:#6f7378;box-shadow:0 0 0 1px #18191b}' +
+    '@media(max-height:720px){.device{height:92vh}}@media(max-width:600px){body{padding:18px}.device{width:min(393px,94vw);height:min(852px,91vh);border-radius:48px}.screen-shell{border-radius:42px}}' +
+    '</style></head><body><div class="device-wrap"><span class="side-button one"></span><span class="side-button two"></span><span class="side-button three"></span><span class="power"></span><div class="device"><div class="screen-shell"><div class="dynamic-island"></div><div class="status"><span>9:41</span></div><main class="screen ' + layoutClass + '"><h1>' + escapeHtml(title) + '</h1>' + content + '</main><div class="home-indicator"></div></div></div></div></body></html>';
 
   var url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
   var preview = window.open(url, '_blank');
@@ -86,7 +93,7 @@ function executeSwiftUI(source, filename) {
     throw new Error('SwiftUI preview was blocked by the browser. Allow pop-ups for FluxIDE.');
   }
   setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
-  return '✓ SwiftUI browser preview opened for ' + file + '. This preview is fully browser-based; Xcode, macOS and Apple SDKs are not required.';
+  return '✓ SwiftUI iPhone preview opened for ' + file + '. Browser-based; Xcode, macOS and Apple SDKs are not required.';
 }
 
 export { executeSwiftUI };
