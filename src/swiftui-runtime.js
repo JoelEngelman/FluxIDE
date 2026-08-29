@@ -21,38 +21,18 @@ function executeSwiftUI(source, filename) {
   var file = filename || 'ContentView.swift';
   var title = firstMatch(source, /(?:navigationTitle|Text)\s*\(\s*["']([^"']+)["']\s*\)/, 'SwiftUI Preview');
   var content = '';
-
-  // Browser-only SwiftUI renderer. No Swift compiler, Xcode, macOS or Apple SDKs are used.
   var texts = allMatches(source, /\bText\s*\(\s*["']([^"']+)["']/g);
   var labels = allMatches(source, /\bLabel\s*\(\s*["']([^"']+)["']/g);
   var buttons = allMatches(source, /\bButton\s*\(\s*["']([^"']+)["']/g);
   var fields = allMatches(source, /\bTextField\s*\(\s*["']([^"']+)["']/g);
   var images = allMatches(source, /\bImage\s*\(\s*(?:systemName:\s*)?["']([^"']+)["']/g);
   var seen = 0;
-
-  texts.forEach(function (text) {
-    content += '<div class="swift-text">' + escapeHtml(text) + '</div>';
-    seen++;
-  });
-  labels.forEach(function (label) {
-    content += '<div class="swift-label">' + escapeHtml(label) + '</div>';
-    seen++;
-  });
-  buttons.forEach(function (label) {
-    content += '<button class="swift-button" onclick="this.textContent=\'Pressed!\'">' + escapeHtml(label) + '</button>';
-    seen++;
-  });
-  fields.forEach(function (placeholder) {
-    content += '<input class="swift-input" placeholder="' + escapeHtml(placeholder) + '">';
-    seen++;
-  });
-  images.forEach(function (symbol) {
-    content += '<div class="swift-image"><span class="sf-symbol">◆</span>' + escapeHtml(symbol.replace(/[-_]/g, ' ')) + '</div>';
-    seen++;
-  });
-
+  texts.forEach(function (text) { content += '<div class="swift-text">' + escapeHtml(text) + '</div>'; seen++; });
+  labels.forEach(function (label) { content += '<div class="swift-label">' + escapeHtml(label) + '</div>'; seen++; });
+  buttons.forEach(function (label) { content += '<button class="swift-button" onclick="this.textContent=\'Pressed!\'">' + escapeHtml(label) + '</button>'; seen++; });
+  fields.forEach(function (placeholder) { content += '<input class="swift-input" placeholder="' + escapeHtml(placeholder) + '">'; seen++; });
+  images.forEach(function (symbol) { content += '<div class="swift-image"><span class="sf-symbol">◆</span>' + escapeHtml(symbol.replace(/[-_]/g, ' ')) + '</div>'; seen++; });
   if (!seen) content = '<div class="empty">No supported SwiftUI views found.<br><small>Try Text, Button, Label, TextField, Image, VStack, HStack or ZStack.</small></div>';
-
   var hasHStack = /\bHStack\b/.test(source);
   var hasZStack = /\bZStack\b/.test(source);
   var hasScroll = /\bScrollView\b/.test(source);
@@ -60,16 +40,16 @@ function executeSwiftUI(source, filename) {
   var layoutClass = hasHStack ? 'horizontal' : hasZStack ? 'stacked' : 'vertical';
   if (/\bVStack\b/.test(source)) layoutClass = 'vertical';
   if (hasScroll || hasList) layoutClass += ' scroll';
-
   var html = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + escapeHtml(title) + '</title><style>' +
-    '*{box-sizing:border-box}html,body{margin:0;width:100%;min-height:100%;background:radial-gradient(circle at 50% 25%,#30343b 0,#16181c 42%,#08090b 100%);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",sans-serif}' +
-    'body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px 18px;color:#111}' +
-    '.device-wrap{position:relative;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 34px 45px rgba(0,0,0,.55))}' +
-    /* Keep a true 393x852 logical phone ratio. Scale the entire device uniformly instead of resizing width/height independently. */
+    '*{box-sizing:border-box}html,body{margin:0;width:100%;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",sans-serif}' +
+    'body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px 18px;color:#111;background:#050506;position:relative;overflow:hidden}' +
+    /* Premium near-black preview environment: deliberately subtle so the phone remains the focal point. */
+    'body:before{content:"";position:fixed;inset:-20%;background:radial-gradient(circle at 50% 42%,rgba(255,255,255,.09),transparent 22%),radial-gradient(circle at 50% 55%,rgba(120,120,130,.045),transparent 42%),linear-gradient(180deg,#08090b,#030304 70%,#070708);filter:blur(18px);pointer-events:none}' +
+    'body:after{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(circle at center,black 0,transparent 68%);pointer-events:none}' +
+    '.device-wrap{position:relative;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 34px 45px rgba(0,0,0,.65));z-index:1}' +
     '.device{position:relative;width:393px;height:852px;flex:0 0 393px;background:linear-gradient(145deg,#f4f5f7,#777b81 18%,#17191c 20%,#0b0c0e 80%,#60656b);border-radius:56px;padding:7px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.38),inset 0 0 0 3px rgba(0,0,0,.8),0 0 0 1px #050505;overflow:hidden}' +
     '.device:before{content:"";position:absolute;inset:4px;border-radius:51px;border:1px solid rgba(255,255,255,.18);pointer-events:none;z-index:8}' +
     '.screen-shell{position:relative;width:100%;height:100%;overflow:hidden;border-radius:49px;background:#f2f2f7}' +
-    /* Smaller, more realistic Dynamic Island. */
     '.dynamic-island{position:absolute;z-index:20;top:11px;left:50%;transform:translateX(-50%);width:104px;height:30px;border-radius:18px;background:#050505;box-shadow:inset 0 1px 2px rgba(255,255,255,.08),0 1px 2px rgba(0,0,0,.45)}' +
     '.dynamic-island:after{content:"";position:absolute;right:13px;top:9px;width:6px;height:6px;border-radius:50%;background:#18202a;box-shadow:inset 0 0 0 1px #202934}' +
     '.status{position:absolute;z-index:15;top:0;left:0;right:0;height:58px;padding:17px 24px 0;background:linear-gradient(#fff 0%,rgba(255,255,255,.9) 70%,rgba(255,255,255,0));font-size:13px;font-weight:600;color:#111;text-align:left;display:flex;justify-content:space-between}' +
@@ -85,13 +65,9 @@ function executeSwiftUI(source, filename) {
     '@media(max-width:430px){.device-wrap{transform:scale(calc((100vw - 36px) / 393));transform-origin:center center}}' +
     '@media(max-height:900px) and (min-width:431px){.device-wrap{transform:scale(calc((100vh - 56px) / 852));transform-origin:center center}}' +
     '</style></head><body><div class="device-wrap"><span class="side-button one"></span><span class="side-button two"></span><span class="side-button three"></span><span class="power"></span><div class="device"><div class="screen-shell"><div class="dynamic-island"></div><div class="status"><span>9:41</span></div><main class="screen ' + layoutClass + '">' + content + '</main><div class="home-indicator"></div></div></div></div></body></html>';
-
   var url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
   var preview = window.open(url, '_blank');
-  if (!preview) {
-    URL.revokeObjectURL(url);
-    throw new Error('SwiftUI preview was blocked by the browser. Allow pop-ups for FluxIDE.');
-  }
+  if (!preview) { URL.revokeObjectURL(url); throw new Error('SwiftUI preview was blocked by the browser. Allow pop-ups for FluxIDE.'); }
   setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
   return '✓ SwiftUI iPhone preview opened for ' + file + '. Browser-based; Xcode, macOS and Apple SDKs are not required.';
 }
