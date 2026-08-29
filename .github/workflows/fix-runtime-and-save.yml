@@ -1,0 +1,104 @@
+name: Fix runtime and real file saving
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ !contains(github.event.head_commit.message, 'Fix FluxIDE runtime and real save') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Patch FluxIDE
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('src/main.jsx')
+          s = p.read_text()
+
+          if "import { executeCode } from './runtime.js';" not in s:
+              s = s.replace("import './styles.css';", "import './styles.css';\nimport { executeCode } from './runtime.js';")
+
+          s = s.replace("import React, { useEffect, useMemo, useState } from 'react';", "import React, { useEffect, useMemo, useRef, useState } from 'react';")
+
+          marker = "  const [renameValue, setRenameValue] = useState('');"
+          if marker in s and "const fileHandles = useRef(new Map());" not in s:
+              s = s.replace(marker, marker + "\n  const fileHandles = useRef(new Map());")
+
+          start = s.index("  function run() {")
+          end = s.index("\n  function format()", start)
+          new_run = '''  async function run() {
+    setPanel('output');
+    setOutput('Running…');
+    try {
+      const result = await executeCode(language, draft, active);
+      setOutput(result);
+    } catch (error) {
+      setOutput(String(error?.message || error));
+    }
+  }
+'''
+          s = s[:start] + new_run + s[end:]
+
+          start = s.index("  function save() {")
+          end = s.index("\n  function newFile()", start)
+          new_save = '''  async function save() {
+    setHistory((current) => [...current, { file: active, time: new Date().toLocaleTimeString() }].slice(-30));
+    setFiles((current) => ({ ...current, [active]: draft }));
+
+    try {
+      let handle = fileHandles.current.get(active);
+      if (handle) {
+        const writable = await handle.createWritable();
+        await writable.write(draft);
+        await writable.close();
+        setOutput(`✓ Saved ${active} to disk`);
+        return;
+      }
+
+      if (window.showSaveFilePicker) {
+        handle = await window.showSaveFilePicker({
+          suggestedName: active,
+          types: [{ description: 'Source file', accept: { 'text/plain': ['.' + (active.includes('.') ? active.split('.').pop() : 'txt')] } }]
+        });
+        fileHandles.current.set(active, handle);
+        const writable = await handle.createWritable();
+        await writable.write(draft);
+        await writable.close();
+        setOutput(`✓ Saved ${active} to disk`);
+        return;
+      }
+
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(new Blob([draft], { type: 'text/plain' }));
+      link.download = active;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      setOutput(`✓ Saved ${active} as a file`);
+    } catch (error) {
+      if (error?.name === 'AbortError') {
+        setOutput('Save cancelled.');
+        return;
+      }
+      setOutput(`Save failed: ${error?.message || error}`);
+    }
+  }
+'''
+          s = s[:start] + new_save + s[end:]
+
+          p.write_text(s)
+          PY
+
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/main.jsx
+          git diff --cached --quiet || git commit -m "Fix FluxIDE runtime and real save"
+          git push
