@@ -6,7 +6,7 @@ import {
   Trash2, Terminal, CheckCircle2, Download, Upload, Copy, Command,
   Settings, FilePlus, FolderPlus, History, PanelLeft, Sun, Moon,
   ChevronRight, ChevronDown, Braces, Eye, SplitSquareHorizontal, X,
-  Pencil, Globe
+  Pencil, Globe, Zap
 } from 'lucide-react';
 import { executeSwiftUI } from './swiftui-runtime';
 import './styles.css';
@@ -149,6 +149,7 @@ function detectLanguage(name) {
 
 function FileIcon({ name }) {
   const lower = name.toLowerCase();
+
   const extension =
     lower === 'dockerfile'
       ? 'dockerfile'
@@ -244,43 +245,237 @@ function registerFluxLanguage(monaco) {
   });
 
   const keywords = [
-    'if', 'else', 'when', 'otherwise', 'unless', 'while', 'until',
-    'repeat', 'loop', 'for', 'in', 'of', 'match', 'case', 'default',
-    'break', 'continue', 'return', 'yield', 'try', 'catch', 'finally',
-    'throw', 'raise', 'assert', 'let', 'make', 'const', 'fixed', 'var',
-    'create', 'define', 'declare', 'set', 'use', 'import', 'export',
-    'from', 'as', 'module', 'package', 'project', 'and', 'or', 'not',
-    'is', "isn't", 'equals', 'contains', 'starts', 'ends', 'notin',
-    'public', 'private', 'protected', 'internal', 'static', 'final',
-    'async', 'await', 'native', 'extern', 'inline', 'unsafe', 'sealed',
-    'abstract', 'override', 'where', 'with', 'into', 'using', 'by',
-    'via', 'on', 'at', 'inside', 'outside', 'before', 'after'
+    'if',
+    'else',
+    'when',
+    'otherwise',
+    'unless',
+    'while',
+    'until',
+    'repeat',
+    'loop',
+    'for',
+    'in',
+    'of',
+    'match',
+    'case',
+    'default',
+    'break',
+    'continue',
+    'return',
+    'yield',
+    'try',
+    'catch',
+    'finally',
+    'throw',
+    'raise',
+    'assert',
+    'let',
+    'make',
+    'const',
+    'fixed',
+    'var',
+    'create',
+    'define',
+    'declare',
+    'set',
+    'use',
+    'import',
+    'export',
+    'from',
+    'as',
+    'module',
+    'package',
+    'project',
+    'and',
+    'or',
+    'not',
+    'is',
+    "isn't",
+    'equals',
+    'contains',
+    'starts',
+    'ends',
+    'notin',
+    'public',
+    'private',
+    'protected',
+    'internal',
+    'static',
+    'final',
+    'async',
+    'await',
+    'native',
+    'extern',
+    'inline',
+    'unsafe',
+    'sealed',
+    'abstract',
+    'override',
+    'where',
+    'with',
+    'into',
+    'using',
+    'by',
+    'via',
+    'on',
+    'at',
+    'inside',
+    'outside',
+    'before',
+    'after'
   ];
 
   const types = [
-    'text', 'string', 'number', 'integer', 'decimal', 'boolean', 'bool',
-    'list', 'array', 'map', 'object', 'set', 'tuple', 'function', 'fn',
-    'void', 'any', 'unknown', 'never', 'byte', 'bytes', 'date', 'time',
-    'datetime', 'url', 'path', 'file', 'error'
+    'text',
+    'string',
+    'number',
+    'integer',
+    'decimal',
+    'boolean',
+    'bool',
+    'list',
+    'array',
+    'map',
+    'object',
+    'set',
+    'tuple',
+    'function',
+    'fn',
+    'void',
+    'any',
+    'unknown',
+    'never',
+    'byte',
+    'bytes',
+    'date',
+    'time',
+    'datetime',
+    'url',
+    'path',
+    'file',
+    'error'
   ];
 
   const builtins = [
-    'print', 'say', 'write', 'read', 'input', 'ask', 'log', 'debug',
-    'warn', 'error', 'panic', 'exit', 'abs', 'ceil', 'floor', 'round',
-    'sqrt', 'pow', 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'atan2',
-    'ln', 'exp', 'min', 'max', 'clamp', 'random', 'randomInt',
-    'randomFloat', 'pi', 'e', 'len', 'length', 'count', 'first', 'last',
-    'push', 'pop', 'shift', 'unshift', 'insert', 'remove', 'contains',
-    'find', 'filter', 'map', 'reduce', 'sort', 'reverse', 'join', 'split',
-    'slice', 'range', 'zip', 'enumerate', 'str', 'text', 'num', 'number',
-    'int', 'integer', 'float', 'bool', 'boolean', 'set', 'tuple', 'json',
-    'parse', 'stringify', 'now', 'today', 'sleep', 'time', 'clock', 'env',
-    'platform', 'os', 'args', 'exec', 'command', 'open', 'close',
-    'readFile', 'writeFile', 'appendFile', 'exists', 'deleteFile',
-    'copyFile', 'moveFile', 'listFiles', 'mkdir', 'rmdir', 'fetch',
-    'request', 'get', 'post', 'put', 'patch', 'delete', 'download',
-    'upload', 'connect', 'listen', 'send', 'receive', 'html', 'css',
-    'dom', 'element', 'render', 'route', 'serve', 'redirect', 'response'
+    'print',
+    'say',
+    'write',
+    'read',
+    'input',
+    'ask',
+    'log',
+    'debug',
+    'warn',
+    'error',
+    'panic',
+    'exit',
+    'abs',
+    'ceil',
+    'floor',
+    'round',
+    'sqrt',
+    'pow',
+    'sin',
+    'cos',
+    'tan',
+    'asin',
+    'acos',
+    'atan',
+    'atan2',
+    'ln',
+    'exp',
+    'min',
+    'max',
+    'clamp',
+    'random',
+    'randomInt',
+    'randomFloat',
+    'pi',
+    'e',
+    'len',
+    'length',
+    'count',
+    'first',
+    'last',
+    'push',
+    'pop',
+    'shift',
+    'unshift',
+    'insert',
+    'remove',
+    'contains',
+    'find',
+    'filter',
+    'map',
+    'reduce',
+    'sort',
+    'reverse',
+    'join',
+    'split',
+    'slice',
+    'range',
+    'zip',
+    'enumerate',
+    'str',
+    'text',
+    'num',
+    'number',
+    'int',
+    'integer',
+    'float',
+    'bool',
+    'boolean',
+    'set',
+    'tuple',
+    'json',
+    'parse',
+    'stringify',
+    'now',
+    'today',
+    'sleep',
+    'time',
+    'clock',
+    'env',
+    'platform',
+    'os',
+    'args',
+    'exec',
+    'command',
+    'open',
+    'close',
+    'readFile',
+    'writeFile',
+    'appendFile',
+    'exists',
+    'deleteFile',
+    'copyFile',
+    'moveFile',
+    'listFiles',
+    'mkdir',
+    'rmdir',
+    'fetch',
+    'request',
+    'get',
+    'post',
+    'put',
+    'patch',
+    'delete',
+    'download',
+    'upload',
+    'connect',
+    'listen',
+    'send',
+    'receive',
+    'html',
+    'css',
+    'dom',
+    'element',
+    'render',
+    'route',
+    'serve',
+    'redirect',
+    'response'
   ];
 
   monaco.languages.setMonarchTokensProvider('flux', {
@@ -296,7 +491,10 @@ function registerFluxLanguage(monaco) {
         [/(?<![A-Za-z0-9_])#.*$/, 'comment'],
         [/#!.*$/, 'comment'],
 
-        [/@[A-Za-z_][A-Za-z0-9_]*/, 'annotation'],
+        [
+          /@[A-Za-z_][A-Za-z0-9_]*/,
+          'annotation'
+        ],
 
         [
           /\$\{/,
@@ -338,12 +536,35 @@ function registerFluxLanguage(monaco) {
           }
         ],
 
-        [/\b0[xX][0-9A-Fa-f](?:_?[0-9A-Fa-f])*\b/, 'number.hex'],
-        [/\b0[bB][01](?:_?[01])*\b/, 'number.binary'],
-        [/\b0[oO][0-7](?:_?[0-7])*\b/, 'number.octal'],
-        [/\b\d(?:_?\d)*\.\d(?:_?\d)*(?:[eE][+-]?\d+)?\b/, 'number.float'],
-        [/\b\d(?:_?\d)*[eE][+-]?\d+\b/, 'number.float'],
-        [/\b\d(?:_?\d)*\b/, 'number'],
+        [
+          /\b0[xX][0-9A-Fa-f](?:_?[0-9A-Fa-f])*\b/,
+          'number.hex'
+        ],
+
+        [
+          /\b0[bB][01](?:_?[01])*\b/,
+          'number.binary'
+        ],
+
+        [
+          /\b0[oO][0-7](?:_?[0-7])*\b/,
+          'number.octal'
+        ],
+
+        [
+          /\b\d(?:_?\d)*\.\d(?:_?\d)*(?:[eE][+-]?\d+)?\b/,
+          'number.float'
+        ],
+
+        [
+          /\b\d(?:_?\d)*[eE][+-]?\d+\b/,
+          'number.float'
+        ],
+
+        [
+          /\b\d(?:_?\d)*\b/,
+          'number'
+        ],
 
         [
           /[A-Za-z_][A-Za-z0-9_]*/,
@@ -359,9 +580,20 @@ function registerFluxLanguage(monaco) {
           }
         ],
 
-        [/[+\-*\/%=<>!&|^~?:]+/, 'operator'],
-        [/[{}()[\],.;]/, 'delimiter'],
-        [/\$[A-Za-z_][A-Za-z0-9_]*/, 'variable']
+        [
+          /[+\-*\/%=<>!&|^~?:]+/,
+          'operator'
+        ],
+
+        [
+          /[{}()[\],.;]/,
+          'delimiter'
+        ],
+
+        [
+          /\$[A-Za-z_][A-Za-z0-9_]*/,
+          'variable'
+        ]
       ],
 
       comment: [
@@ -372,9 +604,18 @@ function registerFluxLanguage(monaco) {
       ],
 
       doubleString: [
-        [/\\(?:n|r|t|b|f|v|0|\\|"|'|`)/, 'string.escape'],
-        [/\\u\{[0-9A-Fa-f]+\}/, 'string.escape'],
-        [/\\x[0-9A-Fa-f]{2}/, 'string.escape'],
+        [
+          /\\(?:n|r|t|b|f|v|0|\\|"|'|`)/,
+          'string.escape'
+        ],
+        [
+          /\\u\{[0-9A-Fa-f]+\}/,
+          'string.escape'
+        ],
+        [
+          /\\x[0-9A-Fa-f]{2}/,
+          'string.escape'
+        ],
         [
           /\$\{/,
           {
@@ -393,9 +634,18 @@ function registerFluxLanguage(monaco) {
       ],
 
       singleString: [
-        [/\\(?:n|r|t|b|f|v|0|\\|"|'|`)/, 'string.escape'],
-        [/\\u\{[0-9A-Fa-f]+\}/, 'string.escape'],
-        [/\\x[0-9A-Fa-f]{2}/, 'string.escape'],
+        [
+          /\\(?:n|r|t|b|f|v|0|\\|"|'|`)/,
+          'string.escape'
+        ],
+        [
+          /\\u\{[0-9A-Fa-f]+\}/,
+          'string.escape'
+        ],
+        [
+          /\\x[0-9A-Fa-f]{2}/,
+          'string.escape'
+        ],
         [/[^'\\]+/, 'string'],
         [
           /'/,
@@ -407,7 +657,10 @@ function registerFluxLanguage(monaco) {
       ],
 
       tripleString: [
-        [/\\(?:n|r|t|b|f|v|0|\\|"|'|`)/, 'string.escape'],
+        [
+          /\\(?:n|r|t|b|f|v|0|\\|"|'|`)/,
+          'string.escape'
+        ],
         [
           /\$\{/,
           {
@@ -426,7 +679,10 @@ function registerFluxLanguage(monaco) {
       ],
 
       templateString: [
-        [/\\(?:n|r|t|b|f|v|0|\\|"|'|`)/, 'string.escape'],
+        [
+          /\\(?:n|r|t|b|f|v|0|\\|"|'|`)/,
+          'string.escape'
+        ],
         [
           /\$\{/,
           {
@@ -452,7 +708,10 @@ function registerFluxLanguage(monaco) {
             next: '@pop'
           }
         ],
-        [/\b\d+(?:\.\d+)?\b/, 'number'],
+        [
+          /\b\d+(?:\.\d+)?\b/,
+          'number'
+        ],
         [
           /[A-Za-z_][A-Za-z0-9_]*/,
           {
@@ -464,7 +723,10 @@ function registerFluxLanguage(monaco) {
             }
           }
         ],
-        [/[+\-*\/%=<>!&|^~?:]+/, 'operator'],
+        [
+          /[+\-*\/%=<>!&|^~?:]+/,
+          'operator'
+        ],
         [/\s+/, 'white']
       ]
     }
@@ -486,22 +748,26 @@ function registerFluxLanguage(monaco) {
 function App() {
   const [files, setFiles] = useState(
     () =>
-      JSON.parse(localStorage.getItem('fluxide-files') || 'null') ||
-      DEFAULT_FILES
+      JSON.parse(
+        localStorage.getItem('fluxide-files') || 'null'
+      ) || DEFAULT_FILES
   );
 
   const [active, setActive] = useState('main.js');
-  const [draft, setDraft] = useState(files['main.js'] ?? '');
+  const [draft, setDraft] = useState(
+    files['main.js'] ?? ''
+  );
+
   const [language, setLanguage] = useState('javascript');
   const [pendingLanguage, setPendingLanguage] = useState(null);
-
-  // NEW: controls the HTML Run popup.
-  const [htmlRunPrompt, setHtmlRunPrompt] = useState(false);
-
   const [query, setQuery] = useState('');
-  const [output, setOutput] = useState('Ready. Welcome to FluxIDE.');
+  const [output, setOutput] = useState(
+    'Ready. Welcome to FluxIDE.'
+  );
+
   const [version] = useState('0.5.1');
   const [latest, setLatest] = useState(null);
+
   const [theme, setTheme] = useState(
     localStorage.getItem('fluxide-theme') || 'monokai'
   );
@@ -519,13 +785,31 @@ function App() {
   const [renameOpen, setRenameOpen] = useState(false);
   const [renameValue, setRenameValue] = useState('');
 
-  useEffect(() => {
-    localStorage.setItem('fluxide-files', JSON.stringify(files));
-  }, [files]);
+  // NEW:
+  // Controls the Run / Live Server choice popup.
+  const [runChoice, setRunChoice] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem('fluxide-theme', theme);
-  }, [theme]);
+  // NEW:
+  // Whether the real embedded live preview is open.
+  const [livePreview, setLivePreview] = useState(false);
+
+  useEffect(
+    () =>
+      localStorage.setItem(
+        'fluxide-files',
+        JSON.stringify(files)
+      ),
+    [files]
+  );
+
+  useEffect(
+    () =>
+      localStorage.setItem(
+        'fluxide-theme',
+        theme
+      ),
+    [theme]
+  );
 
   useEffect(() => {
     setDraft(files[active] ?? '');
@@ -559,7 +843,9 @@ function App() {
         event.key.toLowerCase() === 'p'
       ) {
         event.preventDefault();
-        document.querySelector('.search input')?.focus();
+        document
+          .querySelector('.search input')
+          ?.focus();
       }
 
       if (
@@ -575,19 +861,33 @@ function App() {
         setSettings(false);
         setPendingLanguage(null);
         setRenameOpen(false);
-        setHtmlRunPrompt(false);
+        setRunChoice(false);
       }
     };
 
-    addEventListener('keydown', keyHandler);
+    addEventListener(
+      'keydown',
+      keyHandler
+    );
 
-    return () => removeEventListener('keydown', keyHandler);
-  }, [draft, active, files, language]);
+    return () =>
+      removeEventListener(
+        'keydown',
+        keyHandler
+      );
+  }, [
+    draft,
+    active,
+    files,
+    language
+  ]);
 
   const visible = useMemo(
     () =>
       Object.keys(files).filter((file) =>
-        file.toLowerCase().includes(query.toLowerCase())
+        file
+          .toLowerCase()
+          .includes(query.toLowerCase())
       ),
     [files, query]
   );
@@ -602,7 +902,9 @@ function App() {
         : 'light';
 
   const togglePanel = (id) =>
-    setPanel((current) => (current === id ? null : id));
+    setPanel((current) =>
+      current === id ? null : id
+    );
 
   function save() {
     setHistory((current) =>
@@ -624,7 +926,10 @@ function App() {
   }
 
   function newFile() {
-    const name = prompt('New file name', 'untitled.js');
+    const name = prompt(
+      'New file name',
+      'untitled.js'
+    );
 
     if (!name || files[name]) return;
 
@@ -638,26 +943,46 @@ function App() {
   }
 
   function newProject() {
-    if (!confirm('Create a new empty project?')) return;
+    if (
+      !confirm(
+        'Create a new empty project?'
+      )
+    ) {
+      return;
+    }
 
     setFiles({
-      'main.js': 'console.log("Hello, FluxIDE!");',
-      'README.md': '# New FluxIDE Project\n'
+      'main.js':
+        'console.log("Hello, FluxIDE!");',
+      'README.md':
+        '# New FluxIDE Project\n'
     });
 
     setTabs(['main.js']);
     setActive('main.js');
-    setOutput('New project created.');
+    setOutput(
+      'New project created.'
+    );
   }
 
   function remove() {
-    if (!confirm(`Delete ${active}?`)) return;
+    if (
+      !confirm(
+        `Delete ${active}?`
+      )
+    ) {
+      return;
+    }
 
-    const next = { ...files };
+    const next = {
+      ...files
+    };
+
     delete next[active];
 
     const first =
-      Object.keys(next)[0] || 'main.js';
+      Object.keys(next)[0] ||
+      'main.js';
 
     if (!Object.keys(next).length) {
       next[first] = '';
@@ -666,11 +991,16 @@ function App() {
     setFiles(next);
 
     setTabs((current) =>
-      current.filter((tab) => tab !== active)
+      current.filter(
+        (tab) => tab !== active
+      )
     );
 
     setActive(first);
-    setOutput(`Deleted ${active}`);
+
+    setOutput(
+      `Deleted ${active}`
+    );
   }
 
   function openRename() {
@@ -679,19 +1009,27 @@ function App() {
   }
 
   function renameFile() {
-    const nextName = renameValue.trim();
+    const nextName =
+      renameValue.trim();
 
-    if (!nextName || nextName === active) {
+    if (
+      !nextName ||
+      nextName === active
+    ) {
       setRenameOpen(false);
       return;
     }
 
     if (
-      Object.prototype.hasOwnProperty.call(files, nextName)
+      Object.prototype.hasOwnProperty.call(
+        files,
+        nextName
+      )
     ) {
       setOutput(
         `Cannot rename: ${nextName} already exists.`
       );
+
       return;
     }
 
@@ -706,7 +1044,9 @@ function App() {
 
     setTabs((current) =>
       current.map((tab) =>
-        tab === active ? nextName : tab
+        tab === active
+          ? nextName
+          : tab
       )
     );
 
@@ -719,9 +1059,10 @@ function App() {
   }
 
   function closeTab(file) {
-    const remaining = tabs.filter(
-      (tab) => tab !== file
-    );
+    const remaining =
+      tabs.filter(
+        (tab) => tab !== file
+      );
 
     setTabs(remaining);
 
@@ -730,7 +1071,9 @@ function App() {
       remaining.length
     ) {
       setActive(
-        remaining[remaining.length - 1]
+        remaining[
+          remaining.length - 1
+        ]
       );
     }
   }
@@ -763,18 +1106,25 @@ function App() {
     setActive(name);
   }
 
-  function requestLanguageChange(nextLanguage) {
-    if (nextLanguage === language) return;
+  function requestLanguageChange(
+    nextLanguage
+  ) {
+    if (
+      nextLanguage === language
+    ) {
+      return;
+    }
 
     const nextExtension =
       EXTENSIONS[nextLanguage];
 
-    const proposedName = active.includes('.')
-      ? `${active.slice(
-          0,
-          active.lastIndexOf('.')
-        )}.${nextExtension}`
-      : `${active}.${nextExtension}`;
+    const proposedName =
+      active.includes('.')
+        ? `${active.slice(
+            0,
+            active.lastIndexOf('.')
+          )}.${nextExtension}`
+        : `${active}.${nextExtension}`;
 
     setPendingLanguage({
       nextLanguage,
@@ -783,7 +1133,9 @@ function App() {
   }
 
   function confirmLanguageChange() {
-    if (!pendingLanguage) return;
+    if (!pendingLanguage) {
+      return;
+    }
 
     const {
       nextLanguage,
@@ -816,7 +1168,9 @@ function App() {
 
     setTabs((current) =>
       current.map((tab) =>
-        tab === active ? proposedName : tab
+        tab === active
+          ? proposedName
+          : tab
       )
     );
 
@@ -829,24 +1183,88 @@ function App() {
     );
   }
 
+  /*
+   * ---------------------------------------------------------
+   * BUILD HTML FOR PREVIEW
+   * ---------------------------------------------------------
+   */
+
+  function buildPreviewHTML() {
+    let html = draft;
+
+    // Inject FluxIDE CSS files into matching <link> tags.
+    Object.entries(files)
+      .filter(
+        ([name]) =>
+          detectLanguage(name) === 'css'
+      )
+      .forEach(
+        ([name, content]) => {
+          const escaped =
+            name.replace(
+              /[.*+?^${}()|[\]\\]/g,
+              '\\$&'
+            );
+
+          html = html.replace(
+            new RegExp(
+              `<link[^>]+href=["']${escaped}["'][^>]*>`,
+              'gi'
+            ),
+            `<style>${content}</style>`
+          );
+        }
+      );
+
+    // Inject FluxIDE JavaScript files into matching <script> tags.
+    Object.entries(files)
+      .filter(
+        ([name]) =>
+          detectLanguage(name) ===
+          'javascript'
+      )
+      .forEach(
+        ([name, content]) => {
+          const escaped =
+            name.replace(
+              /[.*+?^${}()|[\]\\]/g,
+              '\\$&'
+            );
+
+          html = html.replace(
+            new RegExp(
+              `<script[^>]+src=["']${escaped}["'][^>]*><\\/script>`,
+              'gi'
+            ),
+            `<script>${content}<\/script>`
+          );
+        }
+      );
+
+    return html;
+  }
+
+  /*
+   * ---------------------------------------------------------
+   * RUN
+   * ---------------------------------------------------------
+   *
+   * HTML now gets the choice popup instead of showing the
+   * old "Browser execution is not available" message.
+   *
+   * Swift keeps the existing iPhone runtime.
+   * JavaScript and Flux keep their existing browser behaviour.
+   */
+
   function run() {
+    if (language === 'html') {
+      setRunChoice(true);
+      return;
+    }
+
     setPanel('output');
 
     try {
-      /*
-       * HTML DOES NOT RUN DIRECTLY.
-       *
-       * Instead of showing:
-       * "Browser execution is not available..."
-       *
-       * we show the new FluxIDE popup asking whether
-       * the user wants to open it in Live Server.
-       */
-      if (language === 'html') {
-        setHtmlRunPrompt(true);
-        return;
-      }
-
       if (
         language === 'swift' &&
         /(^|\n)\s*(import\s+(SwiftUI|UIKit|AppKit)|@main\b|struct\s+\w+\s*:\s*(View|App)|UIViewController\b)/m.test(
@@ -854,22 +1272,37 @@ function App() {
         )
       ) {
         setOutput(
-          executeSwiftUI(draft, active)
+          executeSwiftUI(
+            draft,
+            active
+          )
         );
+
         return;
       }
 
-      if (language === 'javascript') {
-        const oldLog = console.log;
+      if (
+        language ===
+        'javascript'
+      ) {
+        const oldLog =
+          console.log;
+
         const logs = [];
 
         try {
-          console.log = (...values) =>
+          console.log = (
+            ...values
+          ) =>
             logs.push(
-              values.map(String).join(' ')
+              values
+                .map(String)
+                .join(' ')
             );
 
-          new Function(draft)();
+          new Function(
+            draft
+          )();
 
           setOutput(
             logs.join('\n') ||
@@ -896,7 +1329,10 @@ function App() {
         setOutput(
           printMatches.length
             ? printMatches
-                .map((match) => match[1])
+                .map(
+                  (match) =>
+                    match[1]
+                )
                 .join('\n')
             : 'Flux source loaded. Browser execution currently supports print()/say() string output; full Flux runtime requires the Flux runtime/compiler.'
         );
@@ -905,9 +1341,13 @@ function App() {
       }
 
       setOutput(
-        `${LANGUAGES.find(
-          ([id]) => id === language
-        )?.[1] || language} editing is supported. Browser execution is not available for this language yet.`
+        `${
+          LANGUAGES.find(
+            ([id]) =>
+              id === language
+          )?.[1] ||
+          language
+        } editing is supported. Browser execution is not available for this language yet.`
       );
     } catch (error) {
       setOutput(
@@ -915,6 +1355,66 @@ function App() {
       );
     }
   }
+
+  /*
+   * ---------------------------------------------------------
+   * NEW TAB PREVIEW
+   * ---------------------------------------------------------
+   */
+
+  function openPreviewInNewTab() {
+    const html =
+      buildPreviewHTML();
+
+    const preview =
+      window.open(
+        '',
+        '_blank'
+      );
+
+    if (!preview) {
+      setOutput(
+        'Preview was blocked by the browser. Allow pop-ups for FluxIDE.'
+      );
+
+      setPanel('output');
+      setRunChoice(false);
+      return;
+    }
+
+    preview.document.open();
+    preview.document.write(html);
+    preview.document.close();
+
+    setRunChoice(false);
+
+    setOutput(
+      `✓ Preview opened for ${active}`
+    );
+  }
+
+  /*
+   * ---------------------------------------------------------
+   * REAL LIVE PREVIEW
+   * ---------------------------------------------------------
+   *
+   * This does NOT open another browser tab.
+   * It opens the preview beside the editor.
+   *
+   * The iframe is recreated whenever draft changes because
+   * the iframe key is based on the current HTML.
+   */
+
+  function startLivePreview() {
+    setRunChoice(false);
+    setLivePreview(true);
+  }
+
+  /*
+   * ---------------------------------------------------------
+   * FORMAT
+   * ---------------------------------------------------------
+   */
 
   function format() {
     if (language === 'json') {
@@ -927,7 +1427,9 @@ function App() {
           )
         );
 
-        setOutput('✓ Formatted JSON');
+        setOutput(
+          '✓ Formatted JSON'
+        );
       } catch (error) {
         setOutput(
           `Format error: ${error.message}`
@@ -940,7 +1442,9 @@ function App() {
     setDraft(
       draft
         .split('\n')
-        .map((line) => line.trimEnd())
+        .map((line) =>
+          line.trimEnd()
+        )
         .join('\n')
     );
 
@@ -949,15 +1453,27 @@ function App() {
     );
   }
 
+  /*
+   * ---------------------------------------------------------
+   * FILE ACTIONS
+   * ---------------------------------------------------------
+   */
+
   function download() {
     const link =
-      document.createElement('a');
+      document.createElement(
+        'a'
+      );
 
-    link.href = URL.createObjectURL(
-      new Blob([draft], {
-        type: 'text/plain'
-      })
-    );
+    link.href =
+      URL.createObjectURL(
+        new Blob(
+          [draft],
+          {
+            type: 'text/plain'
+          }
+        )
+      );
 
     link.download = active;
     link.click();
@@ -969,7 +1485,9 @@ function App() {
 
   function upload() {
     const input =
-      document.createElement('input');
+      document.createElement(
+        'input'
+      );
 
     input.type = 'file';
     input.multiple = true;
@@ -982,32 +1500,51 @@ function App() {
           new FileReader();
 
         reader.onload = () => {
-          setFiles((current) => ({
-            ...current,
-            [file.name]: String(
-              reader.result
-            )
-          }));
+          setFiles(
+            (current) => ({
+              ...current,
+              [file.name]:
+                String(
+                  reader.result
+                )
+            })
+          );
 
-          setActive(file.name);
+          setActive(
+            file.name
+          );
         };
 
-        reader.readAsText(file);
+        reader.readAsText(
+          file
+        );
       });
 
     input.click();
   }
 
   function copy() {
-    navigator.clipboard?.writeText(draft);
+    navigator.clipboard?.writeText(
+      draft
+    );
+
     setOutput(
       'Copied contents to clipboard.'
     );
   }
 
+  /*
+   * ---------------------------------------------------------
+   * LIVE SERVER
+   * ---------------------------------------------------------
+   *
+   * Live Server now opens the same choice popup.
+   */
+
   function openLiveServer() {
     if (
-      detectLanguage(active) !== 'html' &&
+      detectLanguage(active) !==
+        'html' &&
       language !== 'html'
     ) {
       setOutput(
@@ -1018,72 +1555,7 @@ function App() {
       return;
     }
 
-    let html = draft;
-
-    Object.entries(files)
-      .filter(
-        ([name]) =>
-          detectLanguage(name) === 'css'
-      )
-      .forEach(
-        ([name, content]) => {
-          const escaped =
-            name.replace(
-              /[.*+?^${}()|[\]\\]/g,
-              '\\$&'
-            );
-
-          html = html.replace(
-            new RegExp(
-              `<link[^>]+href=["']${escaped}["'][^>]*>`,
-              'gi'
-            ),
-            `<style>${content}</style>`
-          );
-        }
-      );
-
-    Object.entries(files)
-      .filter(
-        ([name]) =>
-          detectLanguage(name) ===
-          'javascript'
-      )
-      .forEach(
-        ([name, content]) => {
-          const escaped =
-            name.replace(
-              /[.*+?^${}()|[\]\\]/g,
-              '\\$&'
-            );
-
-          html = html.replace(
-            new RegExp(
-              `<script[^>]+src=["']${escaped}["'][^>]*><\\/script>`,
-              'gi'
-            ),
-            `<script>${content}<\\/script>`
-          );
-        }
-      );
-
-    const preview =
-      window.open('', '_blank');
-
-    if (!preview) {
-      setOutput(
-        'Live Server was blocked by the browser. Allow pop-ups for FluxIDE.'
-      );
-
-      return;
-    }
-
-    preview.document.write(html);
-    preview.document.close();
-
-    setOutput(
-      `✓ Live preview opened for ${active}`
-    );
+    setRunChoice(true);
   }
 
   async function updates() {
@@ -1109,10 +1581,13 @@ function App() {
       const data =
         await response.json();
 
-      setLatest(data.version);
+      setLatest(
+        data.version
+      );
 
       setOutput(
-        data.version !== version
+        data.version !==
+          version
           ? `⬆ Update available: ${data.version}`
           : `✓ You are up to date (${version}).`
       );
@@ -1147,16 +1622,20 @@ function App() {
         setSplit((v) => !v),
       outline: () =>
         setOutline((v) => !v)
-    })[name]?.();
+    }[name]?.());
   };
 
   return (
-    <div className={`app ${theme}`}>
+    <div
+      className={`app ${theme}`}
+    >
       <header>
         <button
           className="icon"
           onClick={() =>
-            setSidebar((v) => !v)
+            setSidebar(
+              (v) => !v
+            )
           }
         >
           <PanelLeft />
@@ -1167,20 +1646,36 @@ function App() {
             src={`${import.meta.env.BASE_URL}android-chrome-512x512.png`}
             alt="Flux"
           />
-          FluxIDE <span>WEB</span>
+
+          FluxIDE
+
+          <span>
+            WEB
+          </span>
         </div>
 
         <div className="actions">
-          <button onClick={newProject}>
-            <FolderPlus /> New Project
+          <button
+            onClick={
+              newProject
+            }
+          >
+            <FolderPlus />
+            New Project
           </button>
 
-          <button onClick={save}>
-            <Save /> Save
+          <button
+            onClick={save}
+          >
+            <Save />
+            Save
           </button>
 
-          <button onClick={run}>
-            <Play /> Run
+          <button
+            onClick={run}
+          >
+            <Play />
+            Run
           </button>
 
           <button
@@ -1188,31 +1683,48 @@ function App() {
               setPalette(true)
             }
           >
-            <Command /> Commands
+            <Command />
+            Commands
           </button>
 
           <button
             onClick={() =>
-              togglePanel('source')
+              togglePanel(
+                'source'
+              )
             }
           >
-            <GitBranch /> Source
+            <GitBranch />
+            Source
           </button>
 
-          <button onClick={openLiveServer}>
-            <Globe /> Live Server
+          <button
+            onClick={
+              openLiveServer
+            }
+          >
+            <Globe />
+            Live Server
           </button>
 
-          <button onClick={updates}>
-            <RefreshCw /> Updates
+          <button
+            onClick={updates}
+          >
+            <RefreshCw />
+            Updates
           </button>
         </div>
 
         <div className="version">
           v{version}
+
           {latest &&
-          latest !== version ? (
-            <b> → v{latest}</b>
+          latest !==
+            version ? (
+            <b>
+              {' '}
+              → v{latest}
+            </b>
           ) : null}
         </div>
       </header>
@@ -1221,11 +1733,14 @@ function App() {
         {sidebar && (
           <aside>
             <div className="side-title">
-              <Folder /> EXPLORER
+              <Folder />
+              EXPLORER
 
               <button
                 className="mini"
-                onClick={newFile}
+                onClick={
+                  newFile
+                }
               >
                 <Plus />
               </button>
@@ -1238,40 +1753,58 @@ function App() {
                 placeholder="Search files (Ctrl+P)"
                 value={query}
                 onChange={(e) =>
-                  setQuery(e.target.value)
+                  setQuery(
+                    e.target.value
+                  )
                 }
               />
             </div>
 
             <div className="files">
-              {visible.map((file) => (
-                <button
-                  className={
-                    file === active
-                      ? 'file active'
-                      : 'file'
-                  }
-                  key={file}
-                  onClick={() =>
-                    setActive(file)
-                  }
-                >
-                  <FileIcon name={file} />
+              {visible.map(
+                (file) => (
+                  <button
+                    className={
+                      file ===
+                      active
+                        ? 'file active'
+                        : 'file'
+                    }
+                    key={file}
+                    onClick={() =>
+                      setActive(
+                        file
+                      )
+                    }
+                  >
+                    <FileIcon
+                      name={
+                        file
+                      }
+                    />
 
-                  {file}
+                    {file}
 
-                  {file === active &&
-                  draft !== files[file] ? (
-                    <i />
-                  ) : null}
-                </button>
-              ))}
+                    {file ===
+                      active &&
+                    draft !==
+                      files[
+                        file
+                      ] ? (
+                      <i />
+                    ) : null}
+                  </button>
+                )
+              )}
             </div>
 
             <div className="outline">
               <div
                 onClick={() =>
-                  setOutline((v) => !v)
+                  setOutline(
+                    (v) =>
+                      !v
+                  )
                 }
               >
                 {outline ? (
@@ -1280,16 +1813,18 @@ function App() {
                   <ChevronRight />
                 )}
 
-                <Braces /> OUTLINE
+                <Braces />
+                OUTLINE
               </div>
 
               {outline && (
                 <small>
                   {lines
-                    .filter((line) =>
-                      /function|class|const|let|var|fn|struct/.test(
-                        line
-                      )
+                    .filter(
+                      (line) =>
+                        /function|class|const|let|var|fn|struct/.test(
+                          line
+                        )
                     )
                     .slice(0, 10)
                     .map(
@@ -1298,7 +1833,9 @@ function App() {
                         index
                       ) => (
                         <span
-                          key={index}
+                          key={
+                            index
+                          }
                         >
                           {line
                             .trim()
@@ -1314,56 +1851,100 @@ function App() {
             </div>
 
             <div className="side-bottom">
-              <button onClick={newFile}>
-                <FilePlus /> New File
+              <button
+                onClick={
+                  newFile
+                }
+              >
+                <FilePlus />
+                New File
               </button>
 
-              <button onClick={upload}>
-                <Upload /> Import Files
+              <button
+                onClick={
+                  upload
+                }
+              >
+                <Upload />
+                Import Files
               </button>
 
-              <button onClick={download}>
-                <Download /> Export File
+              <button
+                onClick={
+                  download
+                }
+              >
+                <Download />
+                Export File
               </button>
 
-              <button onClick={copy}>
-                <Copy /> Copy Contents
+              <button
+                onClick={
+                  copy
+                }
+              >
+                <Copy />
+                Copy Contents
               </button>
 
-              <button onClick={duplicate}>
-                <Copy /> Duplicate
+              <button
+                onClick={
+                  duplicate
+                }
+              >
+                <Copy />
+                Duplicate
               </button>
 
-              <button onClick={openRename}>
-                <Pencil /> Rename
+              <button
+                onClick={
+                  openRename
+                }
+              >
+                <Pencil />
+                Rename
               </button>
 
-              <button onClick={remove}>
-                <Trash2 /> Delete
+              <button
+                onClick={
+                  remove
+                }
+              >
+                <Trash2 />
+                Delete
               </button>
 
               <button
                 onClick={() =>
-                  togglePanel('source')
+                  togglePanel(
+                    'source'
+                  )
                 }
               >
-                <GitBranch /> Source Control
+                <GitBranch />
+                Source Control
               </button>
 
               <button
                 onClick={() =>
-                  togglePanel('history')
+                  togglePanel(
+                    'history'
+                  )
                 }
               >
-                <History /> Local History
+                <History />
+                Local History
               </button>
 
               <button
                 onClick={() =>
-                  setSettings(true)
+                  setSettings(
+                    true
+                  )
                 }
               >
-                <Settings /> Settings
+                <Settings />
+                Settings
               </button>
             </div>
           </aside>
@@ -1371,41 +1952,61 @@ function App() {
 
         <main>
           <div className="tabs">
-            {tabs.map((file) => (
-              <div
-                className={`tab ${
-                  file === active
-                    ? 'tab-active'
-                    : ''
-                }`}
-                key={file}
-                onClick={() =>
-                  setActive(file)
-                }
-              >
-                <FileIcon name={file} />
-
-                {file}
-
-                {file === active &&
-                draft !== files[file] ? (
-                  <strong>●</strong>
-                ) : null}
-
-                <button
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    closeTab(file);
-                  }}
+            {tabs.map(
+              (file) => (
+                <div
+                  className={`tab ${
+                    file === active
+                      ? 'tab-active'
+                      : ''
+                  }`}
+                  key={file}
+                  onClick={() =>
+                    setActive(
+                      file
+                    )
+                  }
                 >
-                  <X />
-                </button>
-              </div>
-            ))}
+                  <FileIcon
+                    name={
+                      file
+                    }
+                  />
+
+                  {file}
+
+                  {file ===
+                    active &&
+                  draft !==
+                    files[
+                      file
+                    ] ? (
+                    <strong>
+                      ●
+                    </strong>
+                  ) : null}
+
+                  <button
+                    onClick={(
+                      event
+                    ) => {
+                      event.stopPropagation();
+                      closeTab(
+                        file
+                      );
+                    }}
+                  >
+                    <X />
+                  </button>
+                </div>
+              )
+            )}
 
             <button
               className="newtab"
-              onClick={newFile}
+              onClick={
+                newFile
+              }
             >
               <Plus />
             </button>
@@ -1416,12 +2017,16 @@ function App() {
               value={language}
               onChange={(event) =>
                 requestLanguageChange(
-                  event.target.value
+                  event.target
+                    .value
                 )
               }
             >
               {LANGUAGES.map(
-                ([id, label]) => (
+                ([
+                  id,
+                  label
+                ]) => (
                   <option
                     key={id}
                     value={id}
@@ -1432,14 +2037,22 @@ function App() {
               )}
             </select>
 
-            <button onClick={format}>
+            <button
+              onClick={
+                format
+              }
+            >
               Format
             </button>
 
             <button
               onClick={() =>
-                setZoom((z) =>
-                  Math.min(24, z + 1)
+                setZoom(
+                  (z) =>
+                    Math.min(
+                      24,
+                      z + 1
+                    )
                 )
               }
             >
@@ -1448,8 +2061,12 @@ function App() {
 
             <button
               onClick={() =>
-                setZoom((z) =>
-                  Math.max(10, z - 1)
+                setZoom(
+                  (z) =>
+                    Math.max(
+                      10,
+                      z - 1
+                    )
                 )
               }
             >
@@ -1458,79 +2075,169 @@ function App() {
 
             <button
               onClick={() =>
-                setSplit((v) => !v)
+                setSplit(
+                  (v) => !v
+                )
               }
             >
               <SplitSquareHorizontal />
             </button>
 
             <span>
-              {draft === files[active]
+              {draft ===
+              files[
+                active
+              ]
                 ? 'Saved'
                 : 'Unsaved changes'}{' '}
-              · {draft.length} chars · Ln{' '}
+              · {draft.length}{' '}
+              chars · Ln{' '}
               {lines.length}
             </span>
           </div>
 
+          {/*
+           * -------------------------------------------------
+           * EDITOR + LIVE PREVIEW
+           * -------------------------------------------------
+           */}
+
           <div
             className={
-              split
-                ? 'editors split'
-                : 'editors'
+              livePreview
+                ? 'editors with-live-preview'
+                : split
+                  ? 'editors split'
+                  : 'editors'
             }
           >
             <div className="editor">
               <Editor
                 height="100%"
-                theme={editorTheme}
-                language={language}
-                value={draft}
-                onChange={(value) =>
-                  setDraft(value ?? '')
+                theme={
+                  editorTheme
+                }
+                language={
+                  language
+                }
+                value={
+                  draft
+                }
+                onChange={(
+                  value
+                ) =>
+                  setDraft(
+                    value ??
+                      ''
+                  )
                 }
                 beforeMount={
                   registerFluxLanguage
                 }
                 options={{
-                  fontSize: zoom,
+                  fontSize:
+                    zoom,
                   minimap: {
-                    enabled: true
+                    enabled:
+                      true
                   },
-                  automaticLayout: true,
+                  automaticLayout:
+                    true,
                   tabSize: 2,
-                  wordWrap: 'on',
-                  bracketPairColorization: {
-                    enabled: true
-                  },
-                  smoothScrolling: true,
-                  stickyScroll: {
-                    enabled: true
-                  },
-                  codeLens: true,
+                  wordWrap:
+                    'on',
+                  bracketPairColorization:
+                    {
+                      enabled:
+                        true
+                    },
+                  smoothScrolling:
+                    true,
+                  stickyScroll:
+                    {
+                      enabled:
+                        true
+                    },
+                  codeLens:
+                    true,
                   renderWhitespace:
                     'selection',
-                  quickSuggestions: true
+                  quickSuggestions:
+                    true
                 }}
               />
             </div>
 
-            {split && (
+            {split &&
+            !livePreview && (
               <div className="editor second">
                 <Editor
                   height="100%"
-                  theme={editorTheme}
-                  language={language}
-                  value={draft}
+                  theme={
+                    editorTheme
+                  }
+                  language={
+                    language
+                  }
+                  value={
+                    draft
+                  }
                   options={{
-                    fontSize: zoom,
+                    fontSize:
+                      zoom,
                     minimap: {
-                      enabled: false
+                      enabled:
+                        false
                     },
-                    automaticLayout: true,
-                    readOnly: true,
-                    wordWrap: 'on'
+                    automaticLayout:
+                      true,
+                    readOnly:
+                      true,
+                    wordWrap:
+                      'on'
                   }}
+                />
+              </div>
+            )}
+
+            {/*
+             * REAL LIVE PREVIEW
+             */}
+
+            {livePreview && (
+              <div className="live-preview">
+                <div className="live-preview-header">
+                  <div>
+                    <Globe />
+
+                    <span>
+                      Live Preview
+                    </span>
+
+                    <small>
+                      ● Live
+                    </small>
+                  </div>
+
+                  <button
+                    onClick={() =>
+                      setLivePreview(
+                        false
+                      )
+                    }
+                    title="Close Live Preview"
+                  >
+                    <X />
+                  </button>
+                </div>
+
+                <iframe
+                  key={
+                    draft
+                  }
+                  title="FluxIDE Live Preview"
+                  srcDoc={buildPreviewHTML()}
+                  sandbox="allow-scripts allow-forms allow-modals allow-popups"
                 />
               </div>
             )}
@@ -1573,16 +2280,20 @@ function App() {
                   ]) => (
                     <button
                       className={
-                        panel === id
+                        panel ===
+                        id
                           ? 'selected'
                           : ''
                       }
                       key={id}
                       onClick={() =>
-                        togglePanel(id)
+                        togglePanel(
+                          id
+                        )
                       }
                     >
-                      <Icon /> {label}
+                      <Icon />{' '}
+                      {label}
                     </button>
                   )
                 )}
@@ -1590,26 +2301,39 @@ function App() {
                 <button
                   className="panel-close"
                   onClick={() =>
-                    setPanel(null)
+                    setPanel(
+                      null
+                    )
                   }
                 >
                   <X />
                 </button>
               </div>
 
-              {panel === 'terminal' ? (
+              {panel ===
+              'terminal' ? (
                 <div className="terminal">
-                  <span>$</span>
+                  <span>
+                    $
+                  </span>
 
                   <input
                     autoFocus
-                    value={terminal}
-                    onChange={(event) =>
+                    value={
+                      terminal
+                    }
+                    onChange={(
+                      event
+                    ) =>
                       setTerminal(
-                        event.target.value
+                        event
+                          .target
+                          .value
                       )
                     }
-                    onKeyDown={(event) => {
+                    onKeyDown={(
+                      event
+                    ) => {
                       if (
                         event.key ===
                         'Enter'
@@ -1631,11 +2355,14 @@ function App() {
                 </div>
               ) : (
                 <pre>
-                  {panel === 'output'
+                  {panel ===
+                  'output'
                     ? output
-                    : panel === 'problems'
+                    : panel ===
+                        'problems'
                       ? '✓ No problems reported.'
-                      : panel === 'source'
+                      : panel ===
+                          'source'
                         ? 'Browser source control workspace ready. Native Git requires Electron or a backend.'
                         : history.length
                           ? history
@@ -1658,45 +2385,64 @@ function App() {
 
       <footer>
         <span>
-          <GitBranch /> main
+          <GitBranch />
+          main
         </span>
 
         <span>
-          {Object.keys(files).length}{' '}
+          {Object.keys(
+            files
+          ).length}{' '}
           files
         </span>
 
-        <span>{language}</span>
+        <span>
+          {language}
+        </span>
 
         <span>
           Ln {lines.length}
         </span>
 
-        <span>Spaces: 2</span>
+        <span>
+          Spaces: 2
+        </span>
 
-        <span>UTF-8</span>
+        <span>
+          UTF-8
+        </span>
 
         <span className="grow" />
 
         <button
           className="icon"
           onClick={() =>
-            setTheme((current) =>
-              current === 'monokai'
-                ? 'light'
-                : current === 'light'
-                  ? 'dark'
-                  : 'monokai'
+            setTheme(
+              (current) =>
+                current ===
+                'monokai'
+                  ? 'light'
+                  : current ===
+                      'light'
+                    ? 'dark'
+                    : 'monokai'
             )
           }
         >
-          {theme === 'light' ? (
+          {theme ===
+          'light' ? (
             <Moon />
           ) : (
             <Sun />
           )}
         </button>
       </footer>
+
+      {/*
+       * -----------------------------------------------------
+       * COMMAND PALETTE
+       * -----------------------------------------------------
+       */}
 
       {palette && (
         <div
@@ -1707,7 +2453,9 @@ function App() {
         >
           <div
             className="palette"
-            onClick={(event) =>
+            onClick={(
+              event
+            ) =>
               event.stopPropagation()
             }
           >
@@ -1718,137 +2466,192 @@ function App() {
 
             <button
               onClick={() =>
-                command('new')
+                command(
+                  'new'
+                )
               }
             >
-              <FilePlus /> New File
+              <FilePlus />
+              New File
             </button>
 
             <button
               onClick={() =>
-                command('project')
+                command(
+                  'project'
+                )
               }
             >
-              <FolderPlus /> New Project
+              <FolderPlus />
+              New Project
             </button>
 
             <button
               onClick={() =>
-                command('rename')
+                command(
+                  'rename'
+                )
               }
             >
-              <Pencil /> Rename File
+              <Pencil />
+              Rename File
             </button>
 
             <button
               onClick={() =>
-                command('save')
+                command(
+                  'save'
+                )
               }
             >
-              <Save /> Save
+              <Save />
+              Save
             </button>
 
             <button
               onClick={() =>
-                command('run')
+                command(
+                  'run'
+                )
               }
             >
-              <Play /> Run
+              <Play />
+              Run
             </button>
 
             <button
               onClick={() =>
-                command('live')
+                command(
+                  'live'
+                )
               }
             >
-              <Globe /> Live Server
+              <Globe />
+              Live Server
             </button>
 
             <button
               onClick={() =>
-                command('format')
+                command(
+                  'format'
+                )
               }
             >
-              <Braces /> Format Document
+              <Braces />
+              Format Document
             </button>
 
             <button
               onClick={() =>
-                command('split')
+                command(
+                  'split'
+                )
               }
             >
-              <SplitSquareHorizontal /> Split Editor
+              <SplitSquareHorizontal />
+              Split Editor
             </button>
 
             <button
               onClick={() =>
-                command('terminal')
+                command(
+                  'terminal'
+                )
               }
             >
-              <Terminal /> Terminal
+              <Terminal />
+              Terminal
             </button>
 
             <button
               onClick={() =>
-                command('problems')
+                command(
+                  'problems'
+                )
               }
             >
-              <CheckCircle2 /> Problems
+              <CheckCircle2 />
+              Problems
             </button>
 
             <button
               onClick={() =>
-                command('outline')
+                command(
+                  'outline'
+                )
               }
             >
-              <Eye /> Toggle Outline
+              <Eye />
+              Toggle Outline
             </button>
 
             <button
               onClick={() =>
-                command('download')
+                command(
+                  'download'
+                )
               }
             >
-              <Download /> Export
+              <Download />
+              Export
             </button>
 
             <button
               onClick={() =>
-                command('upload')
+                command(
+                  'upload'
+                )
               }
             >
-              <Upload /> Import
+              <Upload />
+              Import
             </button>
 
             <button
               onClick={() =>
-                command('updates')
+                command(
+                  'updates'
+                )
               }
             >
-              <RefreshCw /> Check Updates
+              <RefreshCw />
+              Check Updates
             </button>
 
             <button
               onClick={() =>
-                command('settings')
+                command(
+                  'settings'
+                )
               }
             >
-              <Settings /> Settings
+              <Settings />
+              Settings
             </button>
           </div>
         </div>
       )}
 
+      {/*
+       * -----------------------------------------------------
+       * SETTINGS
+       * -----------------------------------------------------
+       */}
+
       {settings && (
         <div
           className="overlay"
           onClick={() =>
-            setSettings(false)
+            setSettings(
+              false
+            )
           }
         >
           <div
             className="settings"
-            onClick={(event) =>
+            onClick={(
+              event
+            ) =>
               event.stopPropagation()
             }
           >
@@ -1863,11 +2666,17 @@ function App() {
                 type="number"
                 min="10"
                 max="24"
-                value={zoom}
-                onChange={(event) =>
+                value={
+                  zoom
+                }
+                onChange={(
+                  event
+                ) =>
                   setZoom(
                     Number(
-                      event.target.value
+                      event
+                        .target
+                        .value
                     )
                   )
                 }
@@ -1875,16 +2684,23 @@ function App() {
             </label>
 
             <p>
-              Browser workspace data is
-              stored locally. Native folders,
-              terminal processes, debugging
-              and real Git are reserved for
-              the Electron/backend phase.
+              Browser workspace
+              data is stored
+              locally. Native
+              folders, terminal
+              processes,
+              debugging and
+              real Git are
+              reserved for the
+              Electron/backend
+              phase.
             </p>
 
             <button
               onClick={() =>
-                setSettings(false)
+                setSettings(
+                  false
+                )
               }
             >
               Close
@@ -1893,16 +2709,26 @@ function App() {
         </div>
       )}
 
+      {/*
+       * -----------------------------------------------------
+       * LANGUAGE CHANGE
+       * -----------------------------------------------------
+       */}
+
       {pendingLanguage && (
         <div
           className="overlay"
           onClick={() =>
-            setPendingLanguage(null)
+            setPendingLanguage(
+              null
+            )
           }
         >
           <div
             className="settings"
-            onClick={(event) =>
+            onClick={(
+              event
+            ) =>
               event.stopPropagation()
             }
           >
@@ -1912,30 +2738,41 @@ function App() {
 
             <p>
               This will rename{' '}
-              <strong>{active}</strong> to{' '}
               <strong>
-                {pendingLanguage.proposedName}
+                {active}
               </strong>{' '}
-              and change the editor
-              language.
+              to{' '}
+              <strong>
+                {
+                  pendingLanguage.proposedName
+                }
+              </strong>{' '}
+              and change the
+              editor language.
             </p>
 
             <p>
               <strong>
                 Risks:
               </strong>{' '}
-              changing the file extension
-              can alter syntax highlighting,
-              tooling, formatting and how
-              other programs interpret the
-              file. The code itself will not
-              be automatically converted.
+              changing the file
+              extension can alter
+              syntax highlighting,
+              tooling, formatting
+              and how other
+              programs interpret
+              the file. The code
+              itself will not be
+              automatically
+              converted.
             </p>
 
             <div className="settings-actions">
               <button
                 onClick={() =>
-                  setPendingLanguage(null)
+                  setPendingLanguage(
+                    null
+                  )
                 }
               >
                 Cancel
@@ -1953,16 +2790,26 @@ function App() {
         </div>
       )}
 
+      {/*
+       * -----------------------------------------------------
+       * RENAME
+       * -----------------------------------------------------
+       */}
+
       {renameOpen && (
         <div
           className="overlay"
           onClick={() =>
-            setRenameOpen(false)
+            setRenameOpen(
+              false
+            )
           }
         >
           <div
             className="settings"
-            onClick={(event) =>
+            onClick={(
+              event
+            ) =>
               event.stopPropagation()
             }
           >
@@ -1972,13 +2819,20 @@ function App() {
 
             <input
               autoFocus
-              value={renameValue}
-              onChange={(event) =>
+              value={
+                renameValue
+              }
+              onChange={(
+                event
+              ) =>
                 setRenameValue(
-                  event.target.value
+                  event.target
+                    .value
                 )
               }
-              onKeyDown={(event) => {
+              onKeyDown={(
+                event
+              ) => {
                 if (
                   event.key ===
                   'Enter'
@@ -1991,14 +2845,18 @@ function App() {
             <div className="settings-actions">
               <button
                 onClick={() =>
-                  setRenameOpen(false)
+                  setRenameOpen(
+                    false
+                  )
                 }
               >
                 Cancel
               </button>
 
               <button
-                onClick={renameFile}
+                onClick={
+                  renameFile
+                }
               >
                 Rename
               </button>
@@ -2007,49 +2865,67 @@ function App() {
         </div>
       )}
 
-      {/* =========================================================
-          NEW HTML RUN POPUP
-          ========================================================= */}
-      {htmlRunPrompt && (
+      {/*
+       * -----------------------------------------------------
+       * NEW RUN / LIVE SERVER POPUP
+       * -----------------------------------------------------
+       */}
+
+      {runChoice && (
         <div
           className="overlay"
           onClick={() =>
-            setHtmlRunPrompt(false)
+            setRunChoice(
+              false
+            )
           }
         >
           <div
             className="settings"
-            onClick={(event) =>
+            onClick={(
+              event
+            ) =>
               event.stopPropagation()
             }
           >
             <h2>
-              Open HTML in Live Server?
+              Open Live Server
             </h2>
 
             <p>
-              HTML files can't be executed
-              directly by FluxIDE's Run
-              button. Would you like to open
-              this file in Live Server instead?
+              How would you like
+              to preview{' '}
+              <strong>
+                {active}
+              </strong>
+              ?
             </p>
 
             <div className="settings-actions">
               <button
                 onClick={() =>
-                  setHtmlRunPrompt(false)
+                  setRunChoice(
+                    false
+                  )
                 }
               >
                 Cancel
               </button>
 
               <button
-                onClick={() => {
-                  setHtmlRunPrompt(false);
-                  openLiveServer();
-                }}
+                onClick={
+                  openPreviewInNewTab
+                }
               >
-                <Globe /> Open in Live Server
+                View in New Tab
+              </button>
+
+              <button
+                onClick={
+                  startLivePreview
+                }
+              >
+                Live Preview
               </button>
             </div>
           </div>
@@ -2060,5 +2936,9 @@ function App() {
 }
 
 createRoot(
-  document.getElementById('root')
-).render(<App />);
+  document.getElementById(
+    'root'
+  )
+).render(
+  <App />
+);
