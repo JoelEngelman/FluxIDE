@@ -2,36 +2,108 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import Editor from '@monaco-editor/react';
 import {
-  Folder, FileCode2, GitBranch, Search, Play, Save, RefreshCw, Plus,
-  Trash2, Terminal, CheckCircle2, Download, Upload, Copy, Command,
-  Settings, FilePlus, FolderPlus, History, PanelLeft, Sun, Moon,
-  ChevronRight, ChevronDown, Braces, Eye, SplitSquareHorizontal, X,
-  Pencil, Globe, Zap
+  Folder,
+  FileCode2,
+  GitBranch,
+  Search,
+  Play,
+  Save,
+  RefreshCw,
+  Plus,
+  Trash2,
+  Terminal,
+  CheckCircle2,
+  Download,
+  Upload,
+  Copy,
+  Command,
+  Settings,
+  FilePlus,
+  FolderPlus,
+  History,
+  PanelLeft,
+  Sun,
+  Moon,
+  ChevronRight,
+  ChevronDown,
+  Braces,
+  Eye,
+  SplitSquareHorizontal,
+  X,
+  Pencil,
+  Globe
 } from 'lucide-react';
 import { executeSwiftUI } from './swiftui-runtime';
 import './styles.css';
 
 const LANGUAGES = [
-  ['javascript', 'JavaScript'], ['flux', 'Flux'], ['typescript', 'TypeScript'],
-  ['html', 'HTML'], ['css', 'CSS'], ['json', 'JSON'], ['python', 'Python'],
-  ['java', 'Java'], ['c', 'C'], ['cpp', 'C++'], ['csharp', 'C#'], ['go', 'Go'],
-  ['rust', 'Rust'], ['php', 'PHP'], ['ruby', 'Ruby'], ['swift', 'Swift'],
-  ['kotlin', 'Kotlin'], ['dart', 'Dart'], ['sql', 'SQL'], ['shell', 'Shell'],
-  ['markdown', 'Markdown'], ['yaml', 'YAML'], ['xml', 'XML'], ['dockerfile', 'Dockerfile'],
-  ['graphql', 'GraphQL'], ['lua', 'Lua'], ['perl', 'Perl'], ['r', 'R'],
-  ['powershell', 'PowerShell'], ['plaintext', 'Plain Text']
+  ['javascript', 'JavaScript'],
+  ['flux', 'Flux'],
+  ['typescript', 'TypeScript'],
+  ['html', 'HTML'],
+  ['css', 'CSS'],
+  ['json', 'JSON'],
+  ['python', 'Python'],
+  ['java', 'Java'],
+  ['c', 'C'],
+  ['cpp', 'C++'],
+  ['csharp', 'C#'],
+  ['go', 'Go'],
+  ['rust', 'Rust'],
+  ['php', 'PHP'],
+  ['ruby', 'Ruby'],
+  ['swift', 'Swift'],
+  ['kotlin', 'Kotlin'],
+  ['dart', 'Dart'],
+  ['sql', 'SQL'],
+  ['shell', 'Shell'],
+  ['markdown', 'Markdown'],
+  ['yaml', 'YAML'],
+  ['xml', 'XML'],
+  ['dockerfile', 'Dockerfile'],
+  ['graphql', 'GraphQL'],
+  ['lua', 'Lua'],
+  ['perl', 'Perl'],
+  ['r', 'R'],
+  ['powershell', 'PowerShell'],
+  ['plaintext', 'Plain Text']
 ];
 
 const EXTENSIONS = {
-  javascript: 'js', flux: 'flux', typescript: 'ts', html: 'html', css: 'css',
-  json: 'json', python: 'py', java: 'java', c: 'c', cpp: 'cpp', csharp: 'cs',
-  go: 'go', rust: 'rs', php: 'php', ruby: 'rb', swift: 'swift', kotlin: 'kt',
-  dart: 'dart', sql: 'sql', shell: 'sh', markdown: 'md', yaml: 'yaml', xml: 'xml',
-  dockerfile: 'dockerfile', graphql: 'graphql', lua: 'lua', perl: 'pl', r: 'r',
-  powershell: 'ps1', plaintext: 'txt'
+  javascript: 'js',
+  flux: 'flux',
+  typescript: 'ts',
+  html: 'html',
+  css: 'css',
+  json: 'json',
+  python: 'py',
+  java: 'java',
+  c: 'c',
+  cpp: 'cpp',
+  csharp: 'cs',
+  go: 'go',
+  rust: 'rs',
+  php: 'php',
+  ruby: 'rb',
+  swift: 'swift',
+  kotlin: 'kt',
+  dart: 'dart',
+  sql: 'sql',
+  shell: 'sh',
+  markdown: 'md',
+  yaml: 'yaml',
+  xml: 'xml',
+  dockerfile: 'dockerfile',
+  graphql: 'graphql',
+  lua: 'lua',
+  perl: 'pl',
+  r: 'r',
+  powershell: 'ps1',
+  plaintext: 'txt'
 };
 
-const DEVICON_BASE = 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/';
+const DEVICON_BASE =
+  'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/';
 
 const FILE_ICONS = {
   js: 'javascript/javascript-original.svg',
@@ -98,53 +170,56 @@ Ctrl+K opens the command palette.`,
 
 function detectLanguage(name) {
   const lower = name.toLowerCase();
+
   const extension =
     lower === 'dockerfile'
       ? 'dockerfile'
       : lower.split('.').pop();
 
-  return {
-    flux: 'flux',
-    js: 'javascript',
-    jsx: 'javascript',
-    ts: 'typescript',
-    tsx: 'typescript',
-    html: 'html',
-    htm: 'html',
-    css: 'css',
-    scss: 'css',
-    sass: 'css',
-    json: 'json',
-    py: 'python',
-    java: 'java',
-    c: 'c',
-    h: 'c',
-    cpp: 'cpp',
-    cc: 'cpp',
-    cxx: 'cpp',
-    cs: 'csharp',
-    go: 'go',
-    rs: 'rust',
-    php: 'php',
-    rb: 'ruby',
-    swift: 'swift',
-    kt: 'kotlin',
-    dart: 'dart',
-    sql: 'sql',
-    sh: 'shell',
-    bash: 'shell',
-    md: 'markdown',
-    yaml: 'yaml',
-    yml: 'yaml',
-    xml: 'xml',
-    lua: 'lua',
-    pl: 'perl',
-    r: 'r',
-    ps1: 'powershell',
-    graphql: 'graphql',
-    dockerfile: 'dockerfile',
-    txt: 'plaintext'
-  }[extension] || 'plaintext';
+  return (
+    {
+      flux: 'flux',
+      js: 'javascript',
+      jsx: 'javascript',
+      ts: 'typescript',
+      tsx: 'typescript',
+      html: 'html',
+      htm: 'html',
+      css: 'css',
+      scss: 'css',
+      sass: 'css',
+      json: 'json',
+      py: 'python',
+      java: 'java',
+      c: 'c',
+      h: 'c',
+      cpp: 'cpp',
+      cc: 'cpp',
+      cxx: 'cpp',
+      cs: 'csharp',
+      go: 'go',
+      rs: 'rust',
+      php: 'php',
+      rb: 'ruby',
+      swift: 'swift',
+      kt: 'kotlin',
+      dart: 'dart',
+      sql: 'sql',
+      sh: 'shell',
+      bash: 'shell',
+      md: 'markdown',
+      yaml: 'yaml',
+      yml: 'yaml',
+      xml: 'xml',
+      lua: 'lua',
+      pl: 'perl',
+      r: 'r',
+      ps1: 'powershell',
+      graphql: 'graphql',
+      dockerfile: 'dockerfile',
+      txt: 'plaintext'
+    }[extension] || 'plaintext'
+  );
 }
 
 function FileIcon({ name }) {
@@ -754,13 +829,20 @@ function App() {
   );
 
   const [active, setActive] = useState('main.js');
+
   const [draft, setDraft] = useState(
     files['main.js'] ?? ''
   );
 
-  const [language, setLanguage] = useState('javascript');
-  const [pendingLanguage, setPendingLanguage] = useState(null);
+  const [language, setLanguage] = useState(
+    'javascript'
+  );
+
+  const [pendingLanguage, setPendingLanguage] =
+    useState(null);
+
   const [query, setQuery] = useState('');
+
   const [output, setOutput] = useState(
     'Ready. Welcome to FluxIDE.'
   );
@@ -785,31 +867,22 @@ function App() {
   const [renameOpen, setRenameOpen] = useState(false);
   const [renameValue, setRenameValue] = useState('');
 
-  // NEW:
-  // Controls the Run / Live Server choice popup.
   const [runChoice, setRunChoice] = useState(false);
-
-  // NEW:
-  // Whether the real embedded live preview is open.
   const [livePreview, setLivePreview] = useState(false);
 
-  useEffect(
-    () =>
-      localStorage.setItem(
-        'fluxide-files',
-        JSON.stringify(files)
-      ),
-    [files]
-  );
+  useEffect(() => {
+    localStorage.setItem(
+      'fluxide-files',
+      JSON.stringify(files)
+    );
+  }, [files]);
 
-  useEffect(
-    () =>
-      localStorage.setItem(
-        'fluxide-theme',
-        theme
-      ),
-    [theme]
-  );
+  useEffect(() => {
+    localStorage.setItem(
+      'fluxide-theme',
+      theme
+    );
+  }, [theme]);
 
   useEffect(() => {
     setDraft(files[active] ?? '');
@@ -843,6 +916,7 @@ function App() {
         event.key.toLowerCase() === 'p'
       ) {
         event.preventDefault();
+
         document
           .querySelector('.search input')
           ?.focus();
@@ -854,6 +928,14 @@ function App() {
       ) {
         event.preventDefault();
         openRename();
+      }
+
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.key.toLowerCase() === 'b'
+      ) {
+        event.preventDefault();
+        setSidebar((v) => !v);
       }
 
       if (event.key === 'Escape') {
@@ -875,12 +957,7 @@ function App() {
         'keydown',
         keyHandler
       );
-  }, [
-    draft,
-    active,
-    files,
-    language
-  ]);
+  }, [draft, active, files, language]);
 
   const visible = useMemo(
     () =>
@@ -931,7 +1008,9 @@ function App() {
       'untitled.js'
     );
 
-    if (!name || files[name]) return;
+    if (!name || files[name]) {
+      return;
+    }
 
     setFiles((current) => ({
       ...current,
@@ -939,6 +1018,7 @@ function App() {
     }));
 
     setActive(name);
+
     setOutput(`Created ${name}`);
   }
 
@@ -954,12 +1034,14 @@ function App() {
     setFiles({
       'main.js':
         'console.log("Hello, FluxIDE!");',
+
       'README.md':
         '# New FluxIDE Project\n'
     });
 
     setTabs(['main.js']);
     setActive('main.js');
+
     setOutput(
       'New project created.'
     );
@@ -1154,6 +1236,7 @@ function App() {
       );
 
       setPendingLanguage(null);
+
       return;
     }
 
@@ -1183,16 +1266,9 @@ function App() {
     );
   }
 
-  /*
-   * ---------------------------------------------------------
-   * BUILD HTML FOR PREVIEW
-   * ---------------------------------------------------------
-   */
-
   function buildPreviewHTML() {
     let html = draft;
 
-    // Inject FluxIDE CSS files into matching <link> tags.
     Object.entries(files)
       .filter(
         ([name]) =>
@@ -1216,7 +1292,6 @@ function App() {
         }
       );
 
-    // Inject FluxIDE JavaScript files into matching <script> tags.
     Object.entries(files)
       .filter(
         ([name]) =>
@@ -1243,18 +1318,6 @@ function App() {
 
     return html;
   }
-
-  /*
-   * ---------------------------------------------------------
-   * RUN
-   * ---------------------------------------------------------
-   *
-   * HTML now gets the choice popup instead of showing the
-   * old "Browser execution is not available" message.
-   *
-   * Swift keeps the existing iPhone runtime.
-   * JavaScript and Flux keep their existing browser behaviour.
-   */
 
   function run() {
     if (language === 'html') {
@@ -1356,12 +1419,6 @@ function App() {
     }
   }
 
-  /*
-   * ---------------------------------------------------------
-   * NEW TAB PREVIEW
-   * ---------------------------------------------------------
-   */
-
   function openPreviewInNewTab() {
     const html =
       buildPreviewHTML();
@@ -1379,6 +1436,7 @@ function App() {
 
       setPanel('output');
       setRunChoice(false);
+
       return;
     }
 
@@ -1393,28 +1451,10 @@ function App() {
     );
   }
 
-  /*
-   * ---------------------------------------------------------
-   * REAL LIVE PREVIEW
-   * ---------------------------------------------------------
-   *
-   * This does NOT open another browser tab.
-   * It opens the preview beside the editor.
-   *
-   * The iframe is recreated whenever draft changes because
-   * the iframe key is based on the current HTML.
-   */
-
   function startLivePreview() {
     setRunChoice(false);
     setLivePreview(true);
   }
-
-  /*
-   * ---------------------------------------------------------
-   * FORMAT
-   * ---------------------------------------------------------
-   */
 
   function format() {
     if (language === 'json') {
@@ -1453,12 +1493,6 @@ function App() {
     );
   }
 
-  /*
-   * ---------------------------------------------------------
-   * FILE ACTIONS
-   * ---------------------------------------------------------
-   */
-
   function download() {
     const link =
       document.createElement(
@@ -1476,6 +1510,7 @@ function App() {
       );
 
     link.download = active;
+
     link.click();
 
     setOutput(
@@ -1533,14 +1568,6 @@ function App() {
     );
   }
 
-  /*
-   * ---------------------------------------------------------
-   * LIVE SERVER
-   * ---------------------------------------------------------
-   *
-   * Live Server now opens the same choice popup.
-   */
-
   function openLiveServer() {
     if (
       detectLanguage(active) !==
@@ -1552,6 +1579,7 @@ function App() {
       );
 
       setPanel('output');
+
       return;
     }
 
@@ -1637,6 +1665,7 @@ function App() {
               (v) => !v
             )
           }
+          title="Toggle Sidebar"
         >
           <PanelLeft />
         </button>
@@ -1991,6 +2020,7 @@ function App() {
                       event
                     ) => {
                       event.stopPropagation();
+
                       closeTab(
                         file
                       );
@@ -2096,12 +2126,6 @@ function App() {
             </span>
           </div>
 
-          {/*
-           * -------------------------------------------------
-           * EDITOR + LIVE PREVIEW
-           * -------------------------------------------------
-           */}
-
           <div
             className={
               livePreview
@@ -2127,8 +2151,7 @@ function App() {
                   value
                 ) =>
                   setDraft(
-                    value ??
-                      ''
+                    value ?? ''
                   )
                 }
                 beforeMount={
@@ -2137,31 +2160,41 @@ function App() {
                 options={{
                   fontSize:
                     zoom,
+
                   minimap: {
                     enabled:
                       true
                   },
+
                   automaticLayout:
                     true,
+
                   tabSize: 2,
+
                   wordWrap:
                     'on',
+
                   bracketPairColorization:
                     {
                       enabled:
                         true
                     },
+
                   smoothScrolling:
                     true,
+
                   stickyScroll:
                     {
                       enabled:
                         true
                     },
+
                   codeLens:
                     true,
+
                   renderWhitespace:
                     'selection',
+
                   quickSuggestions:
                     true
                 }}
@@ -2185,24 +2218,24 @@ function App() {
                   options={{
                     fontSize:
                       zoom,
+
                     minimap: {
                       enabled:
                         false
                     },
+
                     automaticLayout:
                       true,
+
                     readOnly:
                       true,
+
                     wordWrap:
                       'on'
                   }}
                 />
               </div>
             )}
-
-            {/*
-             * REAL LIVE PREVIEW
-             */}
 
             {livePreview && (
               <div className="live-preview">
@@ -2292,7 +2325,7 @@ function App() {
                         )
                       }
                     >
-                      <Icon />{' '}
+                      <Icon />
                       {label}
                     </button>
                   )
@@ -2428,6 +2461,7 @@ function App() {
                     : 'monokai'
             )
           }
+          title="Change Theme"
         >
           {theme ===
           'light' ? (
@@ -2437,12 +2471,6 @@ function App() {
           )}
         </button>
       </footer>
-
-      {/*
-       * -----------------------------------------------------
-       * COMMAND PALETTE
-       * -----------------------------------------------------
-       */}
 
       {palette && (
         <div
@@ -2632,12 +2660,6 @@ function App() {
         </div>
       )}
 
-      {/*
-       * -----------------------------------------------------
-       * SETTINGS
-       * -----------------------------------------------------
-       */}
-
       {settings && (
         <div
           className="overlay"
@@ -2708,12 +2730,6 @@ function App() {
           </div>
         </div>
       )}
-
-      {/*
-       * -----------------------------------------------------
-       * LANGUAGE CHANGE
-       * -----------------------------------------------------
-       */}
 
       {pendingLanguage && (
         <div
@@ -2790,12 +2806,6 @@ function App() {
         </div>
       )}
 
-      {/*
-       * -----------------------------------------------------
-       * RENAME
-       * -----------------------------------------------------
-       */}
-
       {renameOpen && (
         <div
           className="overlay"
@@ -2864,12 +2874,6 @@ function App() {
           </div>
         </div>
       )}
-
-      {/*
-       * -----------------------------------------------------
-       * NEW RUN / LIVE SERVER POPUP
-       * -----------------------------------------------------
-       */}
 
       {runChoice && (
         <div

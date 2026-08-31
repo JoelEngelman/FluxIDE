@@ -8,10 +8,39 @@
     <meta http-equiv="Expires" content="0" />
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
     <link rel="stylesheet" href="/mobile.css?v=20260829-2" />
+    <style>
+      html,body{margin:0;width:100%;height:100%;overflow:hidden}
+      #mac-menu{position:fixed;top:0;left:0;right:0;height:28px;z-index:9999;display:flex;align-items:center;padding:0 12px;gap:2px;box-sizing:border-box;color:rgba(248,248,248,.92);background:rgba(35,36,34,.86);border-bottom:1px solid rgba(255,255,255,.09);box-shadow:0 1px 10px rgba(0,0,0,.18);-webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;font-size:11px;font-weight:450;letter-spacing:-.12px;user-select:none;-webkit-user-select:none}
+      #mac-menu .apple{width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:#fff}
+      #mac-menu .menu-item{position:relative;height:24px;display:flex;align-items:center}
+      #mac-menu .menu-button{height:24px;padding:0 8px;border:0;border-radius:5px;background:transparent;color:inherit;font:inherit;cursor:pointer}
+      #mac-menu .menu-button:hover{background:rgba(255,255,255,.10)}
+      #mac-menu .menu-item:hover .menu-dropdown{display:block}
+      #mac-menu .menu-dropdown{display:none;position:absolute;top:25px;left:0;min-width:190px;padding:5px;background:rgba(35,36,34,.96);border:1px solid rgba(255,255,255,.12);border-radius:8px;box-shadow:0 14px 45px rgba(0,0,0,.48);-webkit-backdrop-filter:blur(22px) saturate(150%);backdrop-filter:blur(22px) saturate(150%)}
+      #mac-menu .menu-dropdown span{display:block;padding:6px 9px;border-radius:5px;color:#eee;white-space:nowrap;cursor:pointer}
+      #mac-menu .menu-dropdown span:hover{background:rgba(255,255,255,.09)}
+      #mac-menu .spacer{flex:1}.status{font-size:10px;color:rgba(255,255,255,.52);padding:0 7px}
+      #root{height:calc(100% - 28px);margin-top:28px}
+      @media(max-width:700px){#mac-menu{font-size:10px;padding:0 6px}#mac-menu .menu-button{padding:0 5px}#mac-menu .menu-item:nth-of-type(n+6){display:none}}
+    </style>
     <title>FluxIDE</title>
   </head>
   <body>
+    <nav id="mac-menu" aria-label="FluxIDE macOS-style menu">
+      <div class="apple"></div>
+      <div class="menu-item"><button class="menu-button">FluxIDE</button><div class="menu-dropdown"><span>About FluxIDE</span><span>Settings…</span><span>Check for Updates…</span></div></div>
+      <div class="menu-item"><button class="menu-button">File</button><div class="menu-dropdown"><span>New File</span><span>New Project</span><span>Open…</span><span>Save</span><span>Export File</span></div></div>
+      <div class="menu-item"><button class="menu-button">Edit</button><div class="menu-dropdown"><span>Undo</span><span>Redo</span><span>Cut</span><span>Copy</span><span>Paste</span><span>Format Document</span></div></div>
+      <div class="menu-item"><button class="menu-button">View</button><div class="menu-dropdown"><span>Explorer</span><span>Problems</span><span>Terminal</span><span>Source Control</span><span>Toggle Outline</span></div></div>
+      <div class="menu-item"><button class="menu-button">Navigate</button><div class="menu-dropdown"><span>Go to File</span><span>Go to Line</span><span>Command Palette</span></div></div>
+      <div class="menu-item"><button class="menu-button">Run</button><div class="menu-dropdown"><span>Run</span><span>Live Server</span><span>Stop</span><span>Run Without Debugging</span></div></div>
+      <div class="menu-item"><button class="menu-button">Window</button><div class="menu-dropdown"><span>New Window</span><span>Split Editor</span><span>Close Tab</span></div></div>
+      <div class="menu-item"><button class="menu-button">Help</button><div class="menu-dropdown"><span>FluxIDE Help</span><span>Keyboard Shortcuts</span><span>About FluxIDE</span></div></div>
+      <div class="spacer"></div><div class="status">FluxIDE Web</div>
+    </nav>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx?v=20260829-2"></script>
+    <script src="/src/xcode-enhancements.js?v=20260831-4"></script>
+    <script src="/src/menu-actions.js?v=20260831-1"></script>
   </body>
 </html>
