@@ -1,3 +1,5 @@
+import './xcode-enhancements-v3.js';
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, function (character) {
     var map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
@@ -50,7 +52,6 @@ function executeSwiftUI(source, filename) {
     '*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:radial-gradient(circle at 50% 25%,#30343b 0,#16181c 42%,#08090b 100%);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",sans-serif}' +
     'body{height:100%;display:flex;align-items:center;justify-content:center;padding:20px;color:#111;overflow:hidden}' +
     '.device-wrap{position:relative;filter:drop-shadow(0 34px 45px rgba(0,0,0,.55));width:min(393px,88vw,calc((100vh - 40px)*393/852));height:min(852px,calc(88vw*852/393),calc(100vh - 40px));aspect-ratio:393 / 852;flex:none}' +
-    /* Use a single radius in CSS pixels, derived from the scaled width, so the arc has enough room on both axes. */
     '.device{position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(145deg,#f4f5f7,#777b81 18%,#17191c 20%,#0b0c0e 80%,#60656b);border-radius:47px;padding:1.78%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.38),inset 0 0 0 3px rgba(0,0,0,.8),0 0 0 1px #050505;overflow:hidden}' +
     '.device:before{content:"";position:absolute;inset:.95%;border-radius:43px;border:1px solid rgba(255,255,255,.18);pointer-events:none;z-index:8}' +
     '.screen-shell{position:relative;width:100%;height:100%;overflow:hidden;border-radius:40px;background:#f2f2f7}' +
